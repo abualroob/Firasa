@@ -1,0 +1,791 @@
+<title>مرآة الفراسة</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Mirror of Firasa: a heritage face reading after Fakhr al-Din al-Razi's Kitab al-Firasa. Runs in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: slim top bar → ink hero holding the upload "mirror" → result split (share card | full reading) → source footer.
+   Ink + gold, a nod to illuminated manuscripts, set in a clean modern grid. */
+:root{
+  --bg:#f4f5f2; --surface:#ffffff; --ink:#14232a; --muted:#5d6b70; --line:#dde2e0;
+  --hero:#0f2329; --hero-2:#173540; --on-hero:#f2eee4; --on-hero-muted:#b9c3c0;
+  --gold:#b8862e; --gold-strong:#d5a447; --gold-soft:#f3e8cf; --danger:#a2402f; --ok:#2f6b55;
+  --f-display-ar:"Amiri","Times New Roman",serif; --f-body-ar:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --f-display-en:"Cormorant Garamond",Georgia,serif; --f-body-en:"Inter","Segoe UI",system-ui,sans-serif;
+  --f-display:var(--f-display-ar); --f-body:var(--f-body-ar);
+}
+:root[lang="en"]{--f-display:var(--f-display-en); --f-body:var(--f-body-en)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c1518; --surface:#132126; --ink:#ebe8df; --muted:#9aa8a6; --line:#24363c;
+  --hero:#091619; --hero-2:#12292f; --on-hero:#f2eee4; --on-hero-muted:#a8b4b1;
+  --gold:#d5a447; --gold-strong:#e3b65d; --gold-soft:#2e2615; --danger:#e48b7d; --ok:#7cc4a6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1518; --surface:#132126; --ink:#ebe8df; --muted:#9aa8a6; --line:#24363c;
+  --hero:#091619; --hero-2:#12292f; --on-hero:#f2eee4; --on-hero-muted:#a8b4b1;
+  --gold:#d5a447; --gold-strong:#e3b65d; --gold-soft:#2e2615; --danger:#e48b7d; --ok:#7cc4a6; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7}
+.gut{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.in{max-width:1120px;margin:0 auto}
+/* hero */
+.hero{background:radial-gradient(120% 90% at 85% 0%,var(--hero-2),var(--hero) 60%);color:var(--on-hero);position:relative;overflow:hidden;
+  margin-top:calc(-1 * env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px)}
+.hero::before{content:"";position:absolute;inset:0;opacity:.07;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='%23d5a447' stroke-width='1.2'%3E%3Crect x='22' y='22' width='28' height='28'/%3E%3Crect x='22' y='22' width='28' height='28' transform='rotate(45 36 36)'/%3E%3C/g%3E%3C/svg%3E")}
+.bar{display:flex;justify-content:space-between;align-items:center;padding-block:18px;position:relative}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:24px;font-weight:700;letter-spacing:.01em}
+.brand svg{width:28px;height:28px}
+.lang{display:flex;border:1px solid rgba(213,164,71,.5);border-radius:999px;overflow:hidden}
+.lang button{all:unset;cursor:pointer;padding:6px 14px;font:600 13px var(--f-body-en);color:var(--on-hero-muted)}
+.lang button[aria-pressed="true"]{background:var(--gold-strong);color:#14232a}
+.lang button:focus-visible{outline:2px solid var(--gold-strong);outline-offset:2px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding-block:28px 64px;position:relative}
+@media (max-width:860px){.hero-grid{grid-template-columns:1fr;gap:28px;padding-block:12px 40px}}
+.kicker{color:var(--gold-strong);font-weight:600;font-size:14px;letter-spacing:.04em}
+:root[lang="en"] .kicker{text-transform:uppercase;font-size:12px;letter-spacing:.12em}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(40px,6vw,68px);line-height:1.1;margin:10px 0 16px;text-wrap:balance}
+.hero p.sub{color:var(--on-hero-muted);font-size:17px;max-width:52ch;margin:0}
+.steps{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:26px;padding:0;list-style:none;color:var(--on-hero-muted);font-size:14px}
+.steps li{display:flex;gap:8px;align-items:center}
+.steps b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1px solid var(--gold-strong);color:var(--gold-strong);font-size:12px}
+/* mirror upload */
+.mirror{background:rgba(255,255,255,.04);border:1px solid rgba(213,164,71,.35);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:16px;backdrop-filter:blur(4px)}
+.drop{border:1.5px dashed rgba(213,164,71,.55);border-radius:16px;min-height:280px;display:grid;place-items:center;text-align:center;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s,background .2s}
+.drop:hover,.drop.over{border-color:var(--gold-strong);background:rgba(213,164,71,.06)}
+.drop:focus-within{outline:2px solid var(--gold-strong);outline-offset:3px}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop .ph{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px;color:var(--on-hero-muted);pointer-events:none}
+.drop .ph svg{width:46px;height:46px;color:var(--gold-strong)}
+.drop .ph strong{color:var(--on-hero);font-size:17px}
+.drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{font:600 15px var(--f-body);border-radius:12px;padding:12px 22px;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:8px;text-decoration:none;line-height:1.2}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-gold{background:var(--gold-strong);color:#14232a}
+.btn-gold:hover{filter:brightness(1.06)}
+.btn-line{background:transparent;color:var(--on-hero);border-color:rgba(242,238,228,.35)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible{outline:2px solid var(--gold-strong);outline-offset:2px}
+.privacy{font-size:13px;color:var(--on-hero-muted);margin:0;display:flex;gap:8px;align-items:flex-start}
+.privacy svg{width:16px;height:16px;flex:none;margin-top:3px;color:var(--gold-strong)}
+.status{min-height:1.4em;margin:0;font-size:14px;color:var(--gold-strong)}
+.status.err{color:#f0a493}
+.manual-link{all:unset;cursor:pointer;color:var(--on-hero-muted);font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.manual-link:focus-visible{outline:2px solid var(--gold-strong)}
+/* manual form */
+.manual{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;margin-top:-28px;position:relative;display:flex;flex-direction:column;gap:14px}
+.manual h3{margin:0;font-family:var(--f-display);font-size:24px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.mgrid label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+select{font:15px var(--f-body);padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+select:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.btn-ink{background:var(--ink);color:var(--bg)}
+.btn-soft{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.btn-soft:hover{border-color:var(--gold)}
+/* result */
+.result{padding-block:56px 24px}
+.res-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px;margin-bottom:24px}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:3px 12px;border-radius:999px;background:var(--gold-soft);color:var(--ink)}
+h2{font-family:var(--f-display);font-size:clamp(30px,4vw,42px);margin:6px 0 0;line-height:1.15;text-wrap:balance}
+.split{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:40px;align-items:start}
+@media (max-width:860px){.split{grid-template-columns:1fr;gap:28px}}
+.cardwrap{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:14px}
+@media (max-width:860px){.cardwrap{position:static}}
+.cardimg{width:100%;aspect-ratio:4/5;max-width:100%;border-radius:18px;display:block;box-shadow:0 18px 50px -20px rgba(10,25,30,.55);background:var(--hero)}
+.share{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.share .wide{grid-column:1 / -1}
+.btn-wa{background:#1f7a4d;color:#fff;justify-content:center}
+.share .btn{justify-content:center}
+.note{font-size:13px;color:var(--muted);margin:0}
+.keys{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:0;list-style:none}
+.keys li{border:1px solid var(--gold);color:var(--ink);border-radius:999px;padding:6px 16px;font-weight:600;font-size:15px;display:flex;gap:8px;align-items:center}
+.keys li span{font-size:12px;color:var(--muted);font-weight:500}
+.reading{font-family:var(--f-display);font-size:21px;line-height:1.9;max-width:62ch}
+:root[lang="en"] .reading{font-size:21px;line-height:1.65}
+.reading p{margin:0 0 14px}
+.reading .thinking{font-family:var(--f-body);font-size:15px;color:var(--muted)}
+.sect{display:flex;flex-direction:column;gap:14px;padding-block:22px;border-top:1px solid var(--line)}
+.sect:first-child{border-top:0;padding-top:0}
+.sect h3{margin:0;font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.04em}
+:root[lang="en"] .sect h3{text-transform:uppercase;letter-spacing:.12em;font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:13px;padding:4px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.rules{display:flex;flex-direction:column}
+.rule{display:grid;grid-template-columns:40px minmax(0,1fr);gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.rule:last-child{border-bottom:0}
+.num{width:32px;height:32px;border-radius:50%;background:var(--gold-strong);color:#14232a;display:grid;place-items:center;font-weight:700;font-size:14px}
+.rule .lab{font-weight:600}
+.rule .lab small{color:var(--muted);font-weight:500;margin-inline-start:6px}
+.rule blockquote{margin:6px 0;font-family:var(--f-display-ar);font-size:19px;line-height:1.85}
+.rule blockquote.en{font-family:var(--f-display-en);font-size:19px;line-height:1.5;font-style:italic}
+.rule .tr{color:var(--ok);font-size:14px;font-weight:500}
+.disclaimer{background:var(--gold-soft);border-radius:14px;padding:14px 18px;font-size:14px;margin:0}
+footer{padding-block:36px 48px;color:var(--muted);font-size:13px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);margin-top:32px}
+@media (prefers-reduced-motion:no-preference){.fade{animation:fd .5s ease-out}@keyframes fd{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}}
+.adult{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--on-hero-muted);cursor:pointer}
+.adult input{width:18px;height:18px;margin-top:3px;accent-color:var(--gold-strong);flex:none}
+</style>
+
+<div class="hero">
+  <div class="gut"><div class="in">
+    <div class="bar">
+      <div class="brand"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" style="color:var(--gold-strong)"><rect x="9" y="9" width="14" height="14"/><rect x="9" y="9" width="14" height="14" transform="rotate(45 16 16)"/><circle cx="16" cy="16" r="3"/></svg><span data-i="brand"></span></div>
+      <div class="lang" role="group" aria-label="Language"><button id="l-ar" aria-pressed="true">العربية</button><button id="l-en" aria-pressed="false">English</button></div>
+    </div>
+    <div class="hero-grid">
+      <div>
+        <div class="kicker" data-i="kicker"></div>
+        <h1 data-i="h1"></h1>
+        <p class="sub" data-i="sub"></p>
+        <ol class="steps"><li><b>1</b><span data-i="s1"></span></li><li><b>2</b><span data-i="s2"></span></li><li><b>3</b><span data-i="s3"></span></li></ol>
+      </div>
+      <div class="mirror">
+        <label class="drop" id="drop">
+          <input id="file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Photo">
+          <div class="ph" id="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="4"/></svg><strong data-i="dropT"></strong><span data-i="dropS"></span></div>
+        </label>
+        <label class="adult"><input type="checkbox" id="adult"><span data-i="adult"></span></label>
+        <div class="row">
+          <button class="btn btn-gold" id="go" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span data-i="go"></span></button>
+          <button class="manual-link" id="toManual" data-i="manualLink"></button>
+        </div>
+        <p class="status" id="status" role="status"></p>
+        <p class="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span data-i="privacy"></span></p>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<div class="gut"><div class="in">
+  <section class="manual" id="manual" hidden aria-labelledby="mh">
+    <h3 id="mh" data-i="manualH"></h3>
+    <p class="note" id="manualP" data-i="manualP"></p>
+    <form class="mgrid" id="mform" onsubmit="return false"></form>
+    <div class="row"><button class="btn btn-ink" id="mgo" type="button" data-i="manualGo"></button></div>
+  </section>
+
+  <section class="result fade" id="result" aria-labelledby="rh">
+    <div class="res-head">
+      <div><span class="tag" id="rtag"></span><h2 id="rh" data-i="resH"></h2></div>
+    </div>
+    <div class="split">
+      <div class="cardwrap">
+        <img class="cardimg" id="cardimg" alt="">
+        <div class="share">
+          <a class="btn btn-wa wide" id="wa" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3z"/></svg><span data-i="wa"></span></a>
+          <button class="btn btn-soft" id="pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6m-3-3 3 3 3-3"/></svg><span data-i="pdf"></span></button>
+          <button class="btn btn-soft" id="png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><span data-i="png"></span></button>
+        </div>
+        <p class="note" id="dlnote" data-i="dlnote"></p>
+      </div>
+      <div style="min-width:0">
+        <div class="sect"><h3 data-i="keysH"></h3><ul class="keys" id="keys"></ul></div>
+        <div class="sect"><h3 data-i="readH"></h3><div class="reading" id="reading"></div></div>
+        <div class="sect"><h3 data-i="seenH"></h3><div class="chips" id="chips"></div><div class="row"><button class="btn btn-soft" id="refine" hidden data-i="refine"></button></div></div>
+        <div class="sect"><h3 data-i="rulesH"></h3><div class="rules" id="rules"></div></div>
+        <div class="sect"><p class="disclaimer" data-i="disc"></p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span data-i="src"></span>
+    <span data-i="excl"></span>
+    <span data-i="tech"></span>
+  </footer>
+</div></div>
+
+<script>
+/* ================= Data: al-Razi, Kitab al-Firasa, Maqala 3 (pages of the Ashur ed.) ================= */
+const PARTS = {
+  forehead:{ar:"الجبهة",en:"Forehead",pt:"forehead"}, brows:{ar:"الحاجب",en:"Eyebrows",pt:"brow"},
+  eyes:{ar:"العين",en:"Eyes",pt:"eye"}, nose:{ar:"الأنف",en:"Nose",pt:"nose"}, mouth:{ar:"الفم",en:"Mouth",pt:"mouth"},
+  face:{ar:"الوجه",en:"Face",pt:"cheek"}, temples:{ar:"الصدغ",en:"Temples",pt:"temple"}, laugh:{ar:"الضحك",en:"Laughter",pt:"mouth"}, neck:{ar:"العنق",en:"Neck",pt:"neck"}
+};
+const GROUPS = {
+  temper:{ar:"حرارة الطبع",en:"Fiery temperament"}, calm:{ar:"السكينة والدعة",en:"Calm, unhurried nature"},
+  thought:{ar:"كثرة الفكر والاهتمام",en:"Thoughtful, concerned mind"}, noble:{ar:"نبل النفس",en:"Noble spirit"},
+  balance:{ar:"اعتدال المزاج",en:"Balanced temperament"}, joy:{ar:"الفرح وقوة الروح",en:"Joyful, strong spirit"},
+  gentle:{ar:"لين الجانب",en:"Easygoing gentleness"}, critical:{ar:"الجد والصرامة",en:"Serious and exacting"},
+  strength:{ar:"القوة والبأس",en:"Strength and vigour"}, appetite:{ar:"الإقبال والرغبة",en:"Eager appetite for life"}
+};
+const RULES = [
+ {id:"forehead_frown",part:"forehead",f:"forehead_frown",v:true,g:["temper"],page:85,
+  ar:{label:"جبهة مقطّبة",quote:"من كان مُقطبًا لجبهته، مائلًا إلى البسط فهو غضوب، لأن جبهة الرجل الغضبان هكذا يكون",trait:"سرعة الغضب"},
+  en:{label:"Knitted forehead",quote:"Whoever knits his forehead, inclining to spread it, is irascible, for such is the forehead of the angry man.",trait:"Quick to anger"}},
+ {id:"forehead_large",part:"forehead",f:"forehead_size",v:"large",g:["calm","temper"],page:85,
+  ar:{label:"جبهة عظيمة",quote:"من كانت جبهته عظيمة فهو كسلان، وغضوب؛ لأن عظم الجبهة يحتمل أن يكون لكثرة المادة، وحينئذ يكون كسلان، ويحتمل أن يكون لقوة الحرارة الغريزية الدماغية … وحينئذ يكون غضوبًا",trait:"ميل إلى السكون، أو حرارة في الطبع"},
+  en:{label:"Broad forehead",quote:"Whoever has a large forehead is sluggish and irascible: its size may come from abundance of matter, making him sluggish, or from strong innate heat of the brain, making him irascible.",trait:"Either restful or fiery"}},
+ {id:"brows_thick",part:"brows",f:"brows",v:"thick",g:["thought"],page:86,
+  ar:{label:"حاجب كثير الشعر",quote:"الحاجب الكثير الشعر يكون صاحبه كثير الهم والحزن",trait:"كثرة الهم والتفكر"},
+  en:{label:"Bushy eyebrows",quote:"The owner of bushy eyebrows is much given to worry and sorrow.",trait:"Much worry and reflection"}},
+ {id:"eyes_large",part:"eyes",f:"eye_size",v:"large",g:["calm"],page:87,
+  ar:{label:"عين واسعة",quote:"من عظمت عينه فهو كسلان … وأيضا فعظم العين يدل على كثرة المادة الرطبة الدماغية",trait:"هدوء وميل إلى الدعة"},
+  en:{label:"Large eyes",quote:"Whoever has large eyes is sluggish… for large eyes indicate abundant moist matter in the brain.",trait:"Calm, inclined to ease"}},
+ {id:"eyes_slightly_deep",part:"eyes",f:"eye_set",v:"slightly_deep",g:["noble"],page:88,
+  ar:{label:"عين غائرة قليلًا",quote:"من كان عيناه غائرتين قليلا فنفسه نبيلة، هذه الدلالة مأخوذة من الأسد",trait:"نبل النفس"},
+  en:{label:"Slightly deep-set eyes",quote:"Whoever has slightly deep-set eyes has a noble soul; this sign is taken from the lion.",trait:"Nobility of soul"}},
+ {id:"eyes_moderate",part:"eyes",f:"eye_set",v:"normal",g:["balance"],page:88,
+  ar:{label:"عين معتدلة الوضع",quote:"ولما ثبت أن الغؤور والجحوظ مذموم ثبت أن الأفضل هو الحالة المتوسطة المعتدلة",trait:"الاعتدال"},
+  en:{label:"Evenly set eyes",quote:"Since both sunken and bulging eyes are blameworthy, the best is the middle, balanced state.",trait:"Balance"}},
+ {id:"eyes_cheerful",part:"eyes",f:"eyes_smiling",v:true,g:["joy","balance"],page:90,
+  ar:{label:"نظرة ضاحكة",quote:"من كان نظره شبيها بنظر الصبيان، وكان فيها وفى جملة الوجه ضحك، وفرح فإنه طويل العمر، فإن هذه الهيئة تدل على اعتدال المزاج وكثرة الفرح وقوة الروح",trait:"اعتدال المزاج وكثرة الفرح وقوة الروح"},
+  en:{label:"Smiling eyes",quote:"Whoever has a gaze like that of children, with laughter and joy in it and in the whole face, will live long; this shows a balanced temperament, abundant joy and strength of spirit.",trait:"Balance, joy and strength of spirit"}},
+ {id:"nostrils_flared",part:"nose",f:"nostrils_flared",v:true,g:["temper"],page:92,
+  ar:{label:"منخران منتفخان",quote:"من كان أنفه شديد الانتفاخ، فهو غضوب. هذا الدليل مأخوذ من مشابهة أنف الغضبان",trait:"حدة وغضب"},
+  en:{label:"Flared nostrils",quote:"Whoever has strongly flared nostrils is irascible; this sign is taken from the nose of the angry man.",trait:"Sharpness of temper"}},
+ {id:"mouth_wide",part:"mouth",f:"mouth_width",v:"wide",g:["appetite"],page:93,
+  ar:{label:"فم واسع",quote:"من كان واسع الفم فهو نَهِم، لأن توسع المجارى ليس إلا من الحرارة",trait:"شدة الرغبة والإقبال"},
+  en:{label:"Wide mouth",quote:"Whoever has a wide mouth is avid, for wide passages come only from heat.",trait:"Strong desire and appetite"}},
+ {id:"face_angry",part:"face",f:"expression",v:"angry",g:["temper"],page:94,
+  ar:{label:"وجه يشبه الغضبان",quote:"إذا كان وجه الإنسان شبيهاً بوجه الغضبان فهو غضوب وقس عليه",trait:"سرعة الغضب"},
+  en:{label:"Stern, angry look",quote:"If a person's face resembles the face of an angry man, he is irascible; and judge the rest by analogy.",trait:"Quick to anger"}},
+ {id:"face_lean",part:"face",f:"face_fullness",v:"lean",g:["thought"],page:94,
+  ar:{label:"وجه نحيف",quote:"من كان نحيف الوجه فهو مهتم بالأمور، لأن كثرة الأفكار توجب اليبوسة",trait:"الاهتمام بالأمور وكثرة الفكر"},
+  en:{label:"Lean face",quote:"Whoever has a lean face is concerned with affairs, for much thinking brings dryness.",trait:"Care for affairs, much thought"}},
+ {id:"face_large",part:"face",f:"face_size",v:"large",g:["calm"],page:94,
+  ar:{label:"وجه عظيم",quote:"من كان وجهه عظيماً، فهو كسلان",trait:"ميل إلى الدعة"},
+  en:{label:"Large face",quote:"Whoever has a large face is sluggish.",trait:"Inclined to ease"}},
+ {id:"face_moderate",part:"face",f:"face_size",v:"medium",g:["balance"],page:94,
+  ar:{label:"وجه معتدل المقدار",quote:"ولما ثبت أن الصغر والكبر مذمومان ظهر أن الأفضل هو التوسط",trait:"الاعتدال، وهو عند الرازي أفضل الأحوال"},
+  en:{label:"Well-proportioned face",quote:"Since smallness and largeness are both blameworthy, it is clear that the best is the middle.",trait:"Balance, the best state for al-Razi"}},
+ {id:"temples_swollen",part:"temples",f:"temples_veins",v:true,g:["temper"],page:95,
+  ar:{label:"أصداغ منتفخة وأوداج ممتلئة",quote:"من كانت أصداغه منتفخة وأوداجه ممتلئة فهو غضوب وهذا الدليل مأخوذ من الإنسان فى وقت الغضب",trait:"غضب"},
+  en:{label:"Swollen temples and neck veins",quote:"Whoever has swollen temples and full neck veins is irascible; this sign is taken from a person in a moment of anger.",trait:"Anger"}},
+ {id:"laugh_much",part:"laugh",f:"expression",v:"laugh",g:["gentle","joy"],page:96,
+  ar:{label:"ضحك ظاهر",quote:"من كان كثير الضحك فهو دَمِث متساهل قليل العناية بالأمور",trait:"لين الخلق وسهولة الطبع"},
+  en:{label:"Open laughter",quote:"Whoever laughs much is gentle and easygoing, giving little care to affairs.",trait:"Gentle, easygoing nature"}},
+ {id:"laugh_little",part:"laugh",f:"expression",v:"serious",g:["critical"],page:96,
+  ar:{label:"وجه جاد قليل الضحك",quote:"من كان قليل الضحك فهو مُعادٍ مخالف، لا يرضى بأعمال الناس",trait:"صرامة ونقد لأعمال الناس"},
+  en:{label:"Serious, unsmiling face",quote:"Whoever laughs little is contrary and dissenting, not pleased with what people do.",trait:"Exacting, critical of others' work"}},
+ {id:"neck_thick",part:"neck",f:"neck",v:"thick",g:["strength"],page:97,
+  ar:{label:"عنق غليظ",quote:"من كان عنقه غليظاً فهو قوى بطاش",trait:"القوة والبأس"},
+  en:{label:"Thick neck",quote:"Whoever has a thick neck is strong and forceful.",trait:"Strength and force"}},
+ {id:"neck_moderate",part:"neck",f:"neck",v:"medium",g:["noble"],page:97,
+  ar:{label:"عنق معتدل",quote:"من كان عنقه معتدلاً فى العظم ليس بالكثير الغليظ فنفسه نبيلة. هذا الدليل مأخوذ من الأسد",trait:"نبل النفس"},
+  en:{label:"Moderate neck",quote:"Whoever has a neck moderate in size, not too thick, has a noble soul; this sign is taken from the lion.",trait:"Nobility of soul"}}
+];
+const FEATURES = [
+ {k:"expression",ar:"هيئة الوجه",en:"Expression",o:{neutral:["هادئة","Calm"],smile:["مبتسمة","Smiling"],laugh:["ضاحكة","Laughing"],serious:["جادة","Serious"],angry:["غاضبة","Angry"]}},
+ {k:"eyes_smiling",ar:"العينان تضحكان",en:"Smiling eyes",o:{true:["نعم","Yes"],false:["لا","No"]}},
+ {k:"forehead_frown",ar:"الجبهة",en:"Forehead",o:{false:["منبسطة","Smooth"],true:["مقطّبة","Knitted"]}},
+ {k:"forehead_size",ar:"سعة الجبهة",en:"Forehead size",o:{small:["صغيرة","Small"],medium:["معتدلة","Medium"],large:["عريضة","Broad"]}},
+ {k:"brows",ar:"الحاجبان",en:"Eyebrows",o:{thin:["خفيفان","Thin"],medium:["معتدلان","Medium"],thick:["كثيفان","Bushy"]}},
+ {k:"eye_size",ar:"العينان",en:"Eye size",o:{small:["صغيرتان","Small"],medium:["معتدلتان","Medium"],large:["واسعتان","Large"]}},
+ {k:"eye_set",ar:"موضع العين",en:"Eye setting",o:{prominent:["بارزة","Prominent"],normal:["معتدلة","Even"],slightly_deep:["غائرة قليلًا","Slightly deep"],deep:["غائرة","Deep"]}},
+ {k:"nostrils_flared",ar:"المنخران",en:"Nostrils",o:{false:["عاديان","Normal"],true:["منتفخان","Flared"]}},
+ {k:"mouth_width",ar:"الفم",en:"Mouth",o:{narrow:["ضيق","Narrow"],medium:["معتدل","Medium"],wide:["واسع","Wide"]}},
+ {k:"face_fullness",ar:"امتلاء الوجه",en:"Face fullness",o:{lean:["نحيف","Lean"],medium:["معتدل","Medium"],full:["ممتلئ","Full"]}},
+ {k:"face_size",ar:"مقدار الوجه",en:"Face size",o:{small:["صغير","Small"],medium:["معتدل","Medium"],large:["كبير","Large"]}},
+ {k:"temples_veins",ar:"عروق الصدغ",en:"Temple veins",o:{false:["غير ظاهرة","Not visible"],true:["منتفخة","Swollen"]}},
+ {k:"neck",ar:"العنق",en:"Neck",o:{not_visible:["لا يظهر","Not visible"],thin:["دقيق","Thin"],medium:["معتدل","Moderate"],thick:["غليظ","Thick"]}}
+];
+const EXAMPLE = {expression:"smile",eyes_smiling:true,forehead_frown:false,forehead_size:"medium",brows:"thick",eye_size:"medium",eye_set:"slightly_deep",nostrils_flared:false,mouth_width:"medium",face_fullness:"lean",face_size:"medium",temples_veins:false,neck:"medium"};
+
+for (const F of FEATURES){ if (["brows","eye_size","eye_set","forehead_size","mouth_width","face_fullness","face_size"].includes(F.k)) F.o = {unclear:["غير محدد","Not sure"], ...F.o}; }
+/* ================= Narrative pieces (written for this site, in al-Razi's spirit) ================= */
+const INTERP = {
+ forehead_frown:{ar:"وهذا عنده حرارة في الطبع وسرعة إلى الغضب، فإذا ثار غضبك ظهر على جبينك قبل لسانك.",en:"For him this means a warm temper quick to rise: your anger shows on your brow before it reaches your tongue."},
+ forehead_large:{ar:"فالجبهة العريضة عنده تحتمل وجهين: سكينة وميلًا إلى الراحة، أو حرارة تبعث على الحدة، والفيصل في سائر العلامات.",en:"A broad forehead can point two ways for him, toward a restful nature or toward a warm mind that flares quickly; the other signs decide which."},
+ brows_thick:{ar:"وهي عنده علامة على كثرة الهم والتفكر، فأنت ممن يحمل الأمور في صدره ويطيل النظر فيها.",en:"For him this marks much worry and reflection: you carry matters inside and turn them over at length."},
+ eyes_large:{ar:"والعين الواسعة عنده علامة هدوء وميل إلى الدعة، فلا تستعجل الأمور.",en:"Large eyes, for him, signal calm and a liking for ease; you do not rush things."},
+ eyes_slightly_deep:{ar:"وهذه عنده من علامات نبل النفس، أخذها من هيئة الأسد.",en:"He counts this among the signs of a noble soul, taken from the lion."},
+ eyes_moderate:{ar:"والتوسط في العين عنده أفضل الأحوال.",en:"For him the middle state of the eye is the best."},
+ eyes_cheerful:{ar:"وهذه عنده من أحسن العلامات: اعتدال في المزاج وفرح وقوة في الروح.",en:"This is one of his finest signs: a balanced temperament, joy and strength of spirit."},
+ nostrils_flared:{ar:"فالمنخر المنتفخ عنده من علامات الحدة، كهيئة أنف الغاضب.",en:"Flared nostrils, for him, signal sharpness of temper, like the nose of an angry man."},
+ mouth_wide:{ar:"والفم الواسع عنده دليل حرارة وإقبال شديد، ويقال: نهم في العلم كما يقال نهم في الطعام.",en:"A wide mouth shows heat and strong appetite, and one can be avid for knowledge as much as for food."},
+ face_angry:{ar:"فهيئة وجهك في هذه الصورة توحي عنده بحرارة الطبع.",en:"The look of your face in this photo suggests, for him, a warm temper."},
+ face_lean:{ar:"والوجه النحيف عنده علامة من يحمل همّ الأمور ويكثر التفكير فيها.",en:"A lean face marks, for him, someone who takes affairs to heart and thinks about them a great deal."},
+ face_large:{ar:"وهو عنده ميل إلى الدعة والراحة.",en:"For him this leans toward ease and rest."},
+ face_moderate:{ar:"والاعتدال في مقدار الوجه عنده أفضل الأحوال، لأن الطرفين مذمومان.",en:"Balanced proportions are for him the best state, since both extremes are faulted."},
+ temples_swollen:{ar:"وهي عنده هيئة الإنسان في وقت غضبه.",en:"For him this is how a person looks in a moment of anger."},
+ laugh_much:{ar:"والضحك الظاهر عنده علامة لين الجانب وسهولة الطبع، وإن كان صاحبه قد يتساهل في بعض الأمور.",en:"Open laughter signals gentleness and an easy nature, though such a person may take some matters lightly."},
+ laugh_little:{ar:"والوجه الجاد عنده علامة من لا يرضى بالقليل ويطلب من الناس أن يحسنوا أعمالهم.",en:"A serious face marks someone hard to satisfy, who expects people to do their work well."},
+ neck_thick:{ar:"وهو عنده من علامات القوة والبأس.",en:"For him this is a sign of strength and force."},
+ neck_moderate:{ar:"وهو عنده من علامات نبل النفس، أخذه من الأسد.",en:"For him this is a sign of a noble soul, taken from the lion."}
+};
+const INTRO = {
+ temper:{ar:"أول ما يظهر في ملامحك حرارة في الطبع؛ فأنت سريع التأثر، تغضب للحق وتنفعل لما تراه خطأ.",en:"The first thing your features show is a warm temperament: you react quickly and are moved by what you see as wrong."},
+ calm:{ar:"يغلب على ملامحك طابع السكينة؛ فأنت ممن لا يستعجلون، ويؤثرون الهدوء والراحة على الصخب.",en:"Calm marks your features most: you are not one to hurry, and you prefer quiet and ease to noise."},
+ thought:{ar:"أول ما تقوله ملامحك أنك كثير الفكر، تحمل الأمور في صدرك وتطيل النظر فيها قبل أن تحكم.",en:"Your features first say that you think a great deal; you carry things inside and weigh them long before you judge."},
+ noble:{ar:"أبرز ما في ملامحك علامات نبل النفس، وهي عند الرازي مأخوذة من هيئة الأسد.",en:"The clearest thing in your features is nobility of soul, which al-Razi drew from the lion."},
+ balance:{ar:"أبرز ما في ملامحك الاعتدال، وهو عند الرازي أفضل الأحوال، لأن الطرفين في كل عضو مذمومان.",en:"Balance is the clearest thing in your features, and for al-Razi it is the best state, since both extremes are faulted in every feature."},
+ joy:{ar:"يظهر في ملامحك فرح وقوة في الروح، وهما عند الرازي من علامات اعتدال المزاج.",en:"Your features show joy and strength of spirit, which al-Razi links to a balanced temperament."},
+ gentle:{ar:"يغلب على ملامحك لين الجانب وسهولة الطبع؛ فأنت قريب من الناس سهل المعشر.",en:"Gentleness and an easy nature mark your features: you are approachable and easy company."},
+ critical:{ar:"يغلب على ملامحك الجد؛ فأنت لا ترضى بالقليل، وتنتظر من نفسك ومن الناس أن يحسنوا العمل.",en:"Seriousness marks your features: you are hard to satisfy and expect good work from yourself and others."},
+ strength:{ar:"أبرز ما في ملامحك القوة والبأس، فأنت ممن يُعتمد عليهم إذا اشتدت الأمور.",en:"Strength and vigour stand out in your features: you are someone people lean on when things get hard."},
+ appetite:{ar:"يظهر في ملامحك إقبال شديد على الحياة ورغبة في الأخذ منها، في العلم والتجربة.",en:"Your features show a strong appetite for life, for knowledge and for experience."}
+};
+const ADVICE = {
+ temper:{ar:"فاجعل لحرارة طبعك لحظة قبل أن تتكلم، فإن الرازي جعل الاعتدال أفضل الأحوال.",en:"Give your warm temper a moment before you speak; al-Razi held balance to be the best of states."},
+ calm:{ar:"فاستعن بسكينتك على صواب الرأي، واحذر أن تصير الراحة تأجيلًا.",en:"Let your calm serve clear judgment, and take care that ease does not turn into delay."},
+ thought:{ar:"فخفّف عن نفسك بعض الهم، فليس كل أمر يستحق أن يُحمل في الصدر.",en:"Lighten some of your worries; not everything deserves to be carried inside."},
+ noble:{ar:"فاحفظ هذا النبل في معاملتك للناس، فهو أجمل ما يُرى منك.",en:"Keep this nobility in how you treat people; it is the best of what others see in you."},
+ balance:{ar:"فحافظ على هذا الاعتدال، فهو عند الرازي غاية ما يُطلب.",en:"Hold on to this balance; for al-Razi it is the very aim."},
+ joy:{ar:"فانشر فرحك فيمن حولك، فهو عند الرازي علامة قوة الروح.",en:"Share your joy with those around you; for al-Razi it is the mark of a strong spirit."},
+ gentle:{ar:"فاجعل لينك قوة، ولا تدع السهولة تُنسيك العناية بأمورك.",en:"Make your gentleness a strength, and do not let ease make you careless of your affairs."},
+ critical:{ar:"فالطف في نقدك، فإن الناس يُصلحون أعمالهم بالرفق أكثر مما يُصلحونها بالشدة.",en:"Be gentle in your criticism; people improve their work more through kindness than through severity."},
+ strength:{ar:"فاجعل قوتك في نصرة غيرك، وأمسكها عند الغضب.",en:"Use your strength in support of others, and hold it back in anger."},
+ appetite:{ar:"فوجّه إقبالك إلى ما ينفعك، فالنهم في العلم خير النهم.",en:"Point your appetite toward what benefits you; hunger for knowledge is the best hunger."}
+};
+const OPPOSE = [["temper","calm"],["temper","gentle"],["temper","joy"],["critical","gentle"],["critical","joy"],["thought","joy"]];
+
+/* ================= UI strings ================= */
+const T = {
+ ar:{brand:"مرآة الفراسة",kicker:"على منهج فخر الدين الرازي · كتاب الفراسة",h1:"ماذا تقول ملامحك؟",
+  sub:"ارفع صورة لوجهك، فنقيس ملامحه داخل جهازك ونقابلها بما كتبه الرازي قبل ثمانية قرون في «دلائل الأعضاء»، ثم نعطيك بطاقة مصوّرة وقراءة كاملة.",
+  s1:"ارفع صورة",s2:"نقرأ الملامح",s3:"شارك بطاقتك",dropT:"اسحب صورتك هنا أو اضغط للاختيار",dropS:"صورة أمامية لوجه واحد بإضاءة جيدة",
+  adult:"عمري ١٨ سنة أو أكثر، والصورة لي أو بإذن صاحبها.",
+  go:"اقرأ ملامحي",manualLink:"أو صِف ملامحك بنفسك",
+  privacy:"صورتك لا تغادر جهازك. التحليل يجري كاملًا داخل متصفحك، ولا نرفعها أو نحفظها في أي مكان.",
+  manualH:"صِف ملامحك",manualP:"اختر أقرب وصف لكل عضو، ثم اعرض القراءة.",manualP2:"ملأنا ما قسناه من صورتك. أكمل ما لا تظهره الصورة (الحاجبان، موضع العين، العنق) ثم حدّث القراءة.",
+  manualGo:"اعرض القراءة",refine:"أكمل الملامح وعدّل القراءة",
+  resH:"قراءة الملامح",tagEx:"قراءة مثال",tagPhoto:"قراءة صورتك",tagManual:"قراءة من وصفك",
+  wa:"شارك عبر واتساب",pdf:"تنزيل PDF",png:"تنزيل الصورة",dlnote:"لمشاركة البطاقة نفسها في واتساب: نزّل الصورة ثم أرفقها في المحادثة.",
+  keysH:"أبرز السمات",readH:"القراءة الكاملة",seenH:"ما قسناه في الصورة",rulesH:"من نص الرازي",
+  disc:"الفراسة علم تراثي ظني، والرازي نفسه يقول إن الدليل الواحد لا يفيد إلا ظنًا ضعيفًا. ولا يثبت العلم الحديث أن ملامح الوجه تكشف الطباع. هذه القراءة للتسلية والتعرف على التراث، فلا تبنِ عليها حكمًا على نفسك أو على غيرك.",
+  src:"المصدر: كتاب الفراسة لفخر الدين الرازي (ت ٦٠٦ هـ)، المقالة الثالثة «في دلائل الأعضاء الجزئية». أرقام الصفحات من طبعة مكتبة القرآن بالقاهرة بتحقيق مصطفى عاشور، والنص المقتبس نص الرازي وحده.",
+  excl:"أغفلنا من قواعد الكتاب ما يقوم على لون العين أو البشرة أو شكل الأنف والشفاه لارتباطه بالأصل والعرق، وما يحكم بالجهل أو الخبث أو الشر، وما لا يظهر في صورة ثابتة.",
+  tech:"قياس الملامح بنموذج MediaPipe Face Landmarker من Google (رخصة Apache 2.0) يعمل داخل المتصفح.",
+  cardSub:"على منهج فخر الدين الرازي",cardKeys:"أبرز السمات",cardFoot:"كتاب الفراسة للرازي · قراءة تراثية للتسلية",
+  balancedOnly:"ملامح معتدلة",noRules:"لم تظهر في الصورة علامة بارزة من علامات الرازي، فالملامح أقرب إلى الاعتدال، وهو عنده أفضل الأحوال. ويمكنك إكمال ما لا تظهره الصورة من الزر أدناه.",
+  page:"ص",loadingModel:"يجهّز أداة قياس الملامح (مرة واحدة، نحو ١٣ ميغابايت)…",looking:"يقيس الملامح…",ready:"الصورة جاهزة.",needAdult:"أكّد أن عمرك ١٨ سنة أو أكثر للمتابعة.",
+  modelFail:"تعذّر تشغيل أداة القياس في هذا المتصفح. صِف ملامحك بنفسك من الأسفل.",badImg:"تعذّر فتح هذه الصورة. جرّب JPG أو PNG.",
+  noFace:"لم نجد وجهًا واضحًا في الصورة. جرّب صورة أمامية بإضاءة أفضل.",multi:"نحتاج صورة فيها وجه واحد فقط.",
+  savedPdf:"حُفظ ملف PDF.",savedPng:"حُفظت الصورة.",dlUnavail:"التنزيل غير متاح هنا. اضغط مطولًا على البطاقة لحفظها.",dlDeclined:"أُلغي التنزيل.",making:"يجهّز الملف…",
+  waIntro:"قرأتُ ملامحي في «مرآة الفراسة» على منهج فخر الدين الرازي.",waKeys:"أبرز السمات",waNote:"قراءة تراثية للتسلية، من كتاب الفراسة للرازي.",
+  pdfTitle:"قراءة الفراسة",pdfDate:"التاريخ",sep:"، ",and:" و",
+  andThen:g=>`ويليه في ملامحك ${g}.`,
+  said:(label,part,quote,pg)=>`${label} في ${part}: قال الرازي «${quote}» (ص ${pg}).`,
+  conflict:(a,b)=>`وفي ملامحك علامات تتجاذب: ${a} من جهة، و${b} من جهة أخرى. والرازي يقول إن الدليلين قد يمتزجان فيكون صاحبهما في المنزلة بينهما، فأنت على الأرجح تجمع بين الأمرين بقدر.`,
+  method:"والرازي يرى أن العلامة الواحدة لا تفيد إلا ظنًا ضعيفًا، فكلما تطابقت العلامات على صفة قوي الظن بها، ولهذا قدّمنا ما تكرر في ملامحك."},
+ en:{brand:"Mirror of Firasa",kicker:"After Fakhr al-Din al-Razi · Kitab al-Firasa",h1:"What does your face say?",
+  sub:"Upload a photo of your face. We measure its features right on your device and match them against what al-Razi wrote eight centuries ago on “the signs of the parts of the body”, then give you a share card and a full reading.",
+  s1:"Upload a photo",s2:"We read the features",s3:"Share your card",dropT:"Drop your photo here or tap to choose",dropS:"One front-facing face, well lit",
+  adult:"I am 18 or older, and this is my photo or I have the person's permission.",
+  go:"Read my face",manualLink:"Or describe your features yourself",
+  privacy:"Your photo never leaves your device. The analysis runs entirely in your browser; nothing is uploaded or stored.",
+  manualH:"Describe your features",manualP:"Pick the closest description for each feature, then show the reading.",manualP2:"We filled in what we measured from your photo. Complete what a photo can't show (eyebrows, eye setting, neck) and update the reading.",
+  manualGo:"Show reading",refine:"Complete features and update the reading",
+  resH:"Your reading",tagEx:"Example reading",tagPhoto:"Reading of your photo",tagManual:"Reading from your description",
+  wa:"Share on WhatsApp",pdf:"Download PDF",png:"Download image",dlnote:"To share the card itself on WhatsApp, download the image and attach it in the chat.",
+  keysH:"Key traits",readH:"Full reading",seenH:"What we measured",rulesH:"From al-Razi's text",
+  disc:"Firasa (physiognomy) is a heritage art of conjecture; al-Razi himself says a single sign gives only weak probability. Modern science does not support reading character from facial features. This reading is for entertainment and cultural interest, not a judgment of you or anyone else.",
+  src:"Source: Kitab al-Firasa by Fakhr al-Din al-Razi (d. 606 AH / 1210 CE), Part Three, “On the signs of the individual organs”. Page numbers follow the Maktabat al-Qur'an edition (Cairo, ed. Mustafa Ashur). Quotations are al-Razi's own text; English renderings are ours.",
+  excl:"We left out al-Razi's rules based on eye or skin colour and the shape of the nose and lips, which track ancestry and ethnicity; rules that judge someone ignorant, wicked or malicious; and signs that a still photo cannot show.",
+  tech:"Feature measurement uses Google's MediaPipe Face Landmarker (Apache 2.0), running in your browser.",
+  cardSub:"After Fakhr al-Din al-Razi",cardKeys:"Key traits",cardFoot:"Kitab al-Firasa by al-Razi · a heritage reading for fun",
+  balancedOnly:"Balanced features",noRules:"None of al-Razi's pronounced signs appear in the photo. Your features lean to the middle, which he held to be the best state. You can add what a photo can't show with the button below.",
+  page:"p.",loadingModel:"Preparing the face measurement tool (once, about 13 MB)…",looking:"Measuring your features…",ready:"Photo ready.",needAdult:"Please confirm you are 18 or older to continue.",
+  modelFail:"The measurement tool could not run in this browser. Describe your features yourself below.",badImg:"That image could not be opened. Try a JPG or PNG.",
+  noFace:"We could not find a clear face. Try a front-facing photo with better light.",multi:"Please use a photo with exactly one face.",
+  savedPdf:"PDF saved.",savedPng:"Image saved.",dlUnavail:"Downloads are not available here. Long-press the card to save it.",dlDeclined:"Download cancelled.",making:"Preparing the file…",
+  waIntro:"I had my face read in “Mirror of Firasa”, after Fakhr al-Din al-Razi.",waKeys:"Key traits",waNote:"A heritage reading for fun, from al-Razi's Kitab al-Firasa.",
+  pdfTitle:"Firasa reading",pdfDate:"Date",sep:", ",and:" and ",
+  andThen:g=>`Next comes ${g.toLowerCase()}.`,
+  said:(label,part,quote,pg)=>`${label} (${part.toLowerCase()}): al-Razi writes, “${quote}” (p. ${pg}).`,
+  conflict:(a,b)=>`Some of your signs pull against each other: ${a.toLowerCase()} on one side, ${b.toLowerCase()} on the other. Al-Razi says two signs can blend, placing a person between them, so you most likely hold both in measure.`,
+  method:"Al-Razi held that one sign alone gives only a weak guess, and that when several signs agree on a trait the guess grows stronger, which is why the traits repeated in your face come first."}
+};
+
+/* ================= State ================= */
+let lang = "ar";
+try{ const s = localStorage.getItem("firasa-lang"); if (s === "en" || s === "ar") lang = s; }catch{}
+const S = { feat:EXAMPLE, mode:"example", img:null, box:null, points:null, measured:null };
+let downloads = null;
+const $ = id => document.getElementById(id);
+const t = k => T[lang][k];
+const num = n => lang === "ar" ? String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]) : String(n);
+const norm = v => v === "true" || v === true ? true : v === "false" || v === false ? false : v;
+
+/* ================= Logic ================= */
+const match = feat => RULES.filter(r => feat[r.f] === r.v);
+function keyTraits(list){
+  const c = {}; list.forEach(r => r.g.forEach(g => c[g] = (c[g]||0) + 1));
+  return Object.entries(c).sort((a,b) => b[1]-a[1]).slice(0,3).map(([g,n]) => ({g,n}));
+}
+function markers(list){
+  const order = ["forehead","brows","eyes","temples","nose","face","mouth","laugh","neck"]; const out = [];
+  for (const p of order){ const rs = list.filter(r => r.part === p); if (rs.length) out.push({part:p, rules:rs}); }
+  return out.map((m,i) => ({...m, n:i+1}));
+}
+function composeReading(list, L){
+  const TT = T[L];
+  if (!list.length) return TT.noRules;
+  const keys = keyTraits(list), paras = [];
+  let p1 = INTRO[keys[0].g][L]; if (keys[1]) p1 += " " + TT.andThen(GROUPS[keys[1].g][L]); paras.push(p1);
+  const pg = n => L === "ar" ? String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]) : n;
+  const lines = list.map(r => TT.said(r[L].label, PARTS[r.part][L], r[L].quote, pg(r.page)) + " " + INTERP[r.id][L]);
+  const half = lines.length > 3 ? Math.ceil(lines.length/2) : lines.length;
+  paras.push(lines.slice(0, half).join(" ")); if (half < lines.length) paras.push(lines.slice(half).join(" "));
+  const gs = new Set(list.flatMap(r => r.g)); const pair = OPPOSE.find(([a,b]) => gs.has(a) && gs.has(b));
+  paras.push(pair ? TT.conflict(GROUPS[pair[0]][L], GROUPS[pair[1]][L]) + " " + TT.method : TT.method);
+  paras.push(ADVICE[keys[0].g][L]);
+  return paras.join("\n");
+}
+
+/* ================= i18n render ================= */
+function applyLang(){
+  const root = document.documentElement; root.lang = lang; root.dir = lang === "ar" ? "rtl" : "ltr";
+  document.title = t("brand");
+  document.querySelectorAll("[data-i]").forEach(el => el.textContent = t(el.dataset.i));
+  if (S.measured) $("manualP").textContent = t("manualP2");
+  $("l-ar").setAttribute("aria-pressed", lang === "ar"); $("l-en").setAttribute("aria-pressed", lang === "en");
+  document.querySelectorAll(".steps b").forEach((b,i) => b.textContent = num(i+1));
+  buildForm(); renderAll();
+}
+function setLang(l){ if (l === lang) return; lang = l; try{ localStorage.setItem("firasa-lang", l); }catch{} applyLang(); }
+$("l-ar").onclick = () => setLang("ar"); $("l-en").onclick = () => setLang("en");
+
+function buildForm(fill){
+  const f = $("mform"); const cur = {};
+  f.querySelectorAll("select").forEach(s => cur[s.id] = s.value); f.textContent = "";
+  for (const F of FEATURES){
+    const lab = document.createElement("label"); lab.textContent = F[lang];
+    const sel = document.createElement("select"); sel.id = "m_" + F.k;
+    for (const [val, txt] of Object.entries(F.o)){ const o = document.createElement("option"); o.value = val; o.textContent = txt[lang === "ar" ? 0 : 1]; sel.append(o); }
+    const want = fill && fill[F.k] !== undefined && F.o[String(fill[F.k])] ? String(fill[F.k]) : (cur[sel.id] ?? String(EXAMPLE[F.k]));
+    sel.value = want; if (sel.value !== want) sel.selectedIndex = 0;
+    lab.append(sel); f.append(lab);
+  }
+}
+
+function renderAll(){
+  const list = match(S.feat), mk = markers(list), keys = keyTraits(list);
+  $("rtag").textContent = t(S.mode === "photo" ? "tagPhoto" : S.mode === "manual" ? "tagManual" : "tagEx");
+  const K = $("keys"); K.textContent = "";
+  if (!keys.length){ const li = document.createElement("li"); li.textContent = t("balancedOnly"); K.append(li); }
+  keys.forEach(k => { const li = document.createElement("li"); li.append(GROUPS[k.g][lang]); const s = document.createElement("span"); s.textContent = "× " + num(k.n); li.append(s); K.append(li); });
+  const C = $("chips"); C.textContent = "";
+  for (const F of FEATURES){ const v = S.feat[F.k]; if (v === undefined || v === "unclear" || v === "not_visible") continue;
+    const o = F.o[String(v)]; if (!o) continue; const s = document.createElement("span"); s.className = "chip"; s.textContent = F[lang] + ": " + o[lang === "ar" ? 0 : 1]; C.append(s); }
+  $("refine").hidden = S.mode !== "photo";
+  const R = $("rules"); R.textContent = "";
+  if (!mk.length){ const p = document.createElement("p"); p.className = "note"; p.textContent = t("noRules"); R.append(p); }
+  for (const m of mk) for (const r of m.rules){
+    const row = document.createElement("div"); row.className = "rule";
+    const n = document.createElement("div"); n.className = "num"; n.textContent = num(m.n);
+    const b = document.createElement("div");
+    const l = document.createElement("div"); l.className = "lab"; l.textContent = r[lang].label;
+    const sm = document.createElement("small"); sm.textContent = "· " + PARTS[r.part][lang]; l.append(sm);
+    const q = document.createElement("blockquote"); q.textContent = "«" + r.ar.quote + "»"; q.lang = "ar"; q.dir = "rtl";
+    b.append(l, q);
+    if (lang === "en"){ const qe = document.createElement("blockquote"); qe.className = "en"; qe.textContent = "“" + r.en.quote + "”"; b.append(qe); }
+    const tr = document.createElement("div"); tr.className = "tr"; tr.textContent = r[lang].trait + " · " + t("page") + " " + num(r.page);
+    b.append(tr); row.append(n, b); R.append(row);
+  }
+  renderParas(composeReading(list, lang));
+  drawCard(); updateWa();
+}
+function renderParas(text){
+  const box = $("reading"); box.textContent = "";
+  for (const para of text.split(/\n+/).map(x => x.trim()).filter(Boolean)){ const p = document.createElement("p"); p.textContent = para; box.append(p); }
+}
+/* ================= Share card (canvas) ================= */
+const CW = 1080, CH = 1350, BOX = {x:260, y:195, w:560, h:650};
+const PH_POINTS = {forehead:[.5,.2],brow:[.36,.33],eye:[.64,.4],temple:[.2,.32],nose:[.5,.52],cheek:[.28,.56],mouth:[.5,.66],neck:[.5,.92]};
+function fontFor(kind){ // canvas fonts
+  if (lang === "ar") return kind === "display" ? '"Amiri", serif' : '"IBM Plex Sans Arabic", sans-serif';
+  return kind === "display" ? '"Cormorant Garamond", Georgia, serif' : '"Inter", sans-serif';
+}
+function starPattern(ctx, w, h, alpha){
+  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = "#d5a447"; ctx.lineWidth = 1.4;
+  for (let y = 0; y < h + 90; y += 90) for (let x = 0; x < w + 90; x += 90){
+    ctx.save(); ctx.translate(x, y); ctx.strokeRect(-18,-18,36,36); ctx.rotate(Math.PI/4); ctx.strokeRect(-18,-18,36,36); ctx.restore();
+  }
+  ctx.restore();
+}
+function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function drawPlaceholderFace(ctx, b){
+  ctx.save(); ctx.fillStyle = "#183740"; ctx.fillRect(b.x,b.y,b.w,b.h);
+  ctx.strokeStyle = "rgba(242,238,228,.55)"; ctx.lineWidth = 3; ctx.lineCap = "round";
+  const X = u => b.x + u*b.w, Y = v => b.y + v*b.h;
+  ctx.beginPath(); ctx.ellipse(X(.5),Y(.45),b.w*.27,b.h*.3,0,0,Math.PI*2); ctx.stroke();               // head
+  ctx.beginPath(); ctx.moveTo(X(.41),Y(.73)); ctx.lineTo(X(.4),Y(1)); ctx.moveTo(X(.59),Y(.73)); ctx.lineTo(X(.6),Y(1)); ctx.stroke(); // neck
+  for (const s of [-1,1]){
+    ctx.beginPath(); ctx.moveTo(X(.5+s*.06),Y(.33)); ctx.quadraticCurveTo(X(.5+s*.13),Y(.3),X(.5+s*.19),Y(.33)); ctx.stroke(); // brow
+    ctx.beginPath(); ctx.ellipse(X(.5+s*.125),Y(.4),b.w*.045,b.h*.018,0,0,Math.PI*2); ctx.stroke();           // eye
+  }
+  ctx.beginPath(); ctx.moveTo(X(.5),Y(.42)); ctx.lineTo(X(.48),Y(.53)); ctx.lineTo(X(.52),Y(.54)); ctx.stroke();  // nose
+  ctx.beginPath(); ctx.moveTo(X(.42),Y(.64)); ctx.quadraticCurveTo(X(.5),Y(.69),X(.58),Y(.64)); ctx.stroke();       // mouth
+  ctx.restore();
+}
+function photoCrop(){ // crop rectangle in source pixels, centred on the face
+  const iw = S.img.width, ih = S.img.height, asp = BOX.w / BOX.h;
+  let cx = iw/2, cy = ih/2, ch = ih;
+  const fb = S.box;
+  if (fb && fb.length === 4 && fb[2] > fb[0] && fb[3] > fb[1]){
+    const fh = (fb[3]-fb[1]) * ih; cx = (fb[0]+fb[2])/2 * iw; cy = (fb[1]+fb[3])/2 * ih + fh*.12; ch = Math.min(ih, fh/0.62);
+  }
+  let cw = ch * asp; if (cw > iw){ cw = iw; ch = cw / asp; } if (ch > ih){ ch = ih; cw = ch * asp; }
+  const sx = Math.max(0, Math.min(iw - cw, cx - cw/2)), sy = Math.max(0, Math.min(ih - ch, cy - ch/2));
+  return {sx, sy, cw, ch};
+}
+function drawCard(){
+  const c = document.createElement("canvas"); c.width = CW; c.height = CH; const ctx = c.getContext("2d");
+  const list = match(S.feat), mk = markers(list), keys = keyTraits(list), rtl = lang === "ar";
+  const g = ctx.createRadialGradient(CW*.8, 0, 50, CW*.5, CH*.4, CH); g.addColorStop(0,"#1b3d48"); g.addColorStop(1,"#0c1d22");
+  ctx.fillStyle = g; ctx.fillRect(0,0,CW,CH); starPattern(ctx, CW, CH, .06);
+  ctx.strokeStyle = "rgba(213,164,71,.55)"; ctx.lineWidth = 2; ctx.strokeRect(28,28,CW-56,CH-56);
+  ctx.direction = rtl ? "rtl" : "ltr"; ctx.textAlign = "center"; ctx.fillStyle = "#f2eee4";
+  ctx.font = `700 ${rtl?66:70}px ${fontFor("display")}`; ctx.fillText(t("brand"), CW/2, 112);
+  ctx.fillStyle = "#d5a447"; ctx.font = `500 26px ${fontFor("body")}`; ctx.fillText(t("cardSub"), CW/2, 158);
+  // photo
+  ctx.save(); roundRect(ctx, BOX.x, BOX.y, BOX.w, BOX.h, 30); ctx.clip();
+  let toBox;
+  if (S.img){
+    const cr = photoCrop(); ctx.drawImage(S.img, cr.sx, cr.sy, cr.cw, cr.ch, BOX.x, BOX.y, BOX.w, BOX.h);
+    const k = BOX.w / cr.cw;
+    toBox = p => p && p.length === 2 ? [BOX.x + (p[0]*S.img.width - cr.sx)*k, BOX.y + (p[1]*S.img.height - cr.sy)*k] : null;
+    const sh = ctx.createLinearGradient(0, BOX.y + BOX.h*.6, 0, BOX.y + BOX.h); sh.addColorStop(0,"rgba(12,29,34,0)"); sh.addColorStop(1,"rgba(12,29,34,.45)");
+    ctx.fillStyle = sh; ctx.fillRect(BOX.x, BOX.y, BOX.w, BOX.h);
+  } else { drawPlaceholderFace(ctx, BOX); toBox = p => p ? [BOX.x + p[0]*BOX.w, BOX.y + p[1]*BOX.h] : null; }
+  ctx.restore();
+  roundRect(ctx, BOX.x, BOX.y, BOX.w, BOX.h, 30); ctx.strokeStyle = "#d5a447"; ctx.lineWidth = 3; ctx.stroke();
+  // markers
+  const pts = S.img ? (S.points || {}) : PH_POINTS; const used = [];
+  for (const m of mk){
+    let p = toBox(pts[PARTS[m.part].pt]); if (!p) continue;
+    let [x,y] = p; if (x < BOX.x+24 || x > BOX.x+BOX.w-24 || y < BOX.y+24 || y > BOX.y+BOX.h-24){ x = Math.min(Math.max(x,BOX.x+26),BOX.x+BOX.w-26); y = Math.min(Math.max(y,BOX.y+26),BOX.y+BOX.h-26); }
+    for (const u of used) if (Math.hypot(u[0]-x,u[1]-y) < 46){ x += 46; }
+    used.push([x,y]);
+    ctx.beginPath(); ctx.arc(x,y,25,0,Math.PI*2); ctx.fillStyle = "rgba(12,29,34,.55)"; ctx.fill();
+    ctx.beginPath(); ctx.arc(x,y,20,0,Math.PI*2); ctx.fillStyle = "#d5a447"; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = "#f2eee4"; ctx.stroke();
+    ctx.fillStyle = "#12252b"; ctx.font = `700 22px ${fontFor("body")}`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(num(m.n), x, y+1); ctx.textBaseline = "alphabetic";
+  }
+  // key traits
+  ctx.textAlign = "center"; ctx.fillStyle = "#b9c3c0"; ctx.font = `600 22px ${fontFor("body")}`; ctx.fillText(t("cardKeys"), CW/2, 900);
+  ctx.fillStyle = "#e3b65d"; ctx.font = `700 ${rtl?40:42}px ${fontFor("display")}`;
+  const kt = keys.length ? keys.map(k => GROUPS[k.g][lang]).join("  ·  ") : t("balancedOnly");
+  fitText(ctx, kt, CW/2, 952, CW-140, rtl?40:42, "700", fontFor("display"));
+  // numbered legend: part and its main trait group
+  ctx.fillStyle = "#f2eee4";
+  const items = mk.slice(0,8), two = items.length > 4, colW = two ? (CW-160)/2 : CW-160, top = 1030;
+  items.forEach((m,i) => {
+    const col = two ? i % 2 : 0, row = two ? Math.floor(i/2) : i, y = top + row*54;
+    const label = num(m.n) + "   " + PARTS[m.part][lang] + " — " + GROUPS[m.rules[0].g[0]][lang];
+    let x; if (two){ x = rtl ? CW - 80 - col*colW : 80 + col*colW; ctx.textAlign = rtl ? "right" : "left"; } else { x = CW/2; ctx.textAlign = "center"; }
+    fitText(ctx, label, x, y, colW-30, 28, "500", fontFor("body"));
+  });
+  ctx.textAlign = "center"; ctx.fillStyle = "#8fa09d"; ctx.font = `400 20px ${fontFor("body")}`; ctx.fillText(t("cardFoot"), CW/2, CH-52);
+  S.cardCanvas = c; $("cardimg").src = c.toDataURL("image/jpeg", .9);
+  $("cardimg").alt = t("brand") + " — " + kt;
+}
+function fitText(ctx, text, x, y, maxW, size, weight, family){
+  let s = size; ctx.font = `${weight} ${s}px ${family}`;
+  while (ctx.measureText(text).width > maxW && s > 14){ s -= 1; ctx.font = `${weight} ${s}px ${family}`; }
+  ctx.fillText(text, x, y);
+}
+
+/* ================= PDF (hand-built: JPEG pages) ================= */
+function wrapLines(ctx, text, maxW){
+  const out = []; for (const para of text.split("\n")){ const words = para.split(/\s+/).filter(Boolean); let line = "";
+    for (const w of words){ const tst = line ? line + " " + w : w; if (ctx.measureText(tst).width > maxW && line){ out.push(line); line = w; } else line = tst; }
+    out.push(line); out.push(""); }
+  return out;
+}
+function textPages(){
+  const W = 1240, H = 1754, M = 110, rtl = lang === "ar", pages = []; let c, ctx, y;
+  const xEdge = rtl ? W - M : M;
+  const newPage = () => { c = document.createElement("canvas"); c.width = W; c.height = H; ctx = c.getContext("2d"); ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = "#b8862e"; ctx.fillRect(M, 70, W-2*M, 3); ctx.direction = rtl ? "rtl" : "ltr"; y = 140; pages.push(c); };
+  const need = h => { if (y + h > H - 110) newPage(); };
+  const write = (text, font, color, lh, gap=0) => { ctx.font = font; ctx.fillStyle = color; ctx.textAlign = rtl ? "right" : "left";
+    for (const ln of wrapLines(ctx, text, W-2*M)){ if (!ln){ y += gap; continue; } need(lh); ctx.fillText(ln, xEdge, y); y += lh; } };
+  newPage();
+  write(t("pdfTitle") + " — " + t("brand"), `700 52px ${fontFor("display")}`, "#14232a", 66, 4);
+  write(t("pdfDate") + ": " + new Date().toLocaleDateString(lang === "ar" ? "ar" : "en-GB", {year:"numeric",month:"long",day:"numeric"}), `400 24px ${fontFor("body")}`, "#5d6b70", 34, 20);
+  const list = match(S.feat);
+  write(t("keysH"), `600 26px ${fontFor("body")}`, "#b8862e", 38, 0);
+  write(keyTraits(list).map(k => GROUPS[k.g][lang]).join("  ·  ") || t("balancedOnly"), `700 36px ${fontFor("display")}`, "#14232a", 50, 24);
+  write(t("readH"), `600 26px ${fontFor("body")}`, "#b8862e", 38, 0);
+  write(composeReading(list, lang), `400 30px ${fontFor("display")}`, "#14232a", rtl ? 54 : 44, 14);
+  y += 10; write(t("rulesH"), `600 26px ${fontFor("body")}`, "#b8862e", 38, 0);
+  for (const m of markers(list)) for (const r of m.rules){
+    need(160);
+    write(num(m.n) + ". " + r[lang].label + " · " + PARTS[r.part][lang], `600 28px ${fontFor("body")}`, "#14232a", 40, 0);
+    ctx.direction = "rtl"; const sv = lang; write("«" + r.ar.quote + "»", `400 28px "Amiri", serif`, "#14232a", 46, 0); ctx.direction = rtl ? "rtl" : "ltr";
+    if (!rtl) write("“" + r.en.quote + "”", `italic 500 28px ${fontFor("display")}`, "#3b4a50", 38, 0);
+    write(r[lang].trait + " · " + t("page") + " " + num(r.page), `500 24px ${fontFor("body")}`, "#2f6b55", 34, 18);
+  }
+  y += 10; write(t("disc"), `400 22px ${fontFor("body")}`, "#5d6b70", 34, 8);
+  write(t("src"), `400 20px ${fontFor("body")}`, "#8a9699", 30, 0);
+  return pages;
+}
+async function jpegBytes(canvas, q=.9){ const b = await new Promise(r => canvas.toBlob(r, "image/jpeg", q)); return new Uint8Array(await b.arrayBuffer()); }
+async function buildPdf(){
+  const enc = new TextEncoder(), chunks = [], offs = []; let pos = 0;
+  const push = d => { const u = typeof d === "string" ? enc.encode(d) : d; chunks.push(u); pos += u.length; };
+  const imgs = [S.cardCanvas, ...textPages()]; const n = imgs.length;
+  // object ids: 1 catalog, 2 pages, then per page: page, content, image
+  push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+  const obj = (id, body) => { offs[id] = pos; push(`${id} 0 obj\n`); body(); push("\nendobj\n"); };
+  obj(1, () => push("<< /Type /Catalog /Pages 2 0 R >>"));
+  const kids = []; for (let i = 0; i < n; i++) kids.push(`${3+i*3} 0 R`);
+  obj(2, () => push(`<< /Type /Pages /Kids [${kids.join(" ")}] /Count ${n} >>`));
+  for (let i = 0; i < n; i++){
+    const cv = imgs[i], pid = 3+i*3, cid = pid+1, iid = pid+2, PW = 595.28, PH = 841.89;
+    let w, h, x, yy;
+    if (i === 0){ w = PW - 80; h = w * cv.height / cv.width; if (h > PH - 80){ h = PH - 80; w = h * cv.width / cv.height; } x = (PW-w)/2; yy = (PH-h)/2; }
+    else { w = PW; h = PH; x = 0; yy = 0; }
+    const bytes = await jpegBytes(cv, i === 0 ? .92 : .85);
+    const content = `q ${w.toFixed(2)} 0 0 ${h.toFixed(2)} ${x.toFixed(2)} ${yy.toFixed(2)} cm /Im0 Do Q`;
+    obj(pid, () => push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /XObject << /Im0 ${iid} 0 R >> >> /Contents ${cid} 0 R >>`));
+    obj(cid, () => push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`));
+    obj(iid, () => { push(`<< /Type /XObject /Subtype /Image /Width ${cv.width} /Height ${cv.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`); push(bytes); push("\nendstream"); });
+  }
+  const total = 3 + n*3, xref = pos;
+  let x = `xref\n0 ${total}\n0000000000 65535 f \n`; for (let i = 1; i < total; i++) x += String(offs[i]).padStart(10,"0") + " 00000 n \n";
+  push(x + `trailer\n<< /Size ${total} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob(chunks, {type:"application/pdf"});
+}
+
+/* ================= Downloads & WhatsApp ================= */
+const dlNote = msg => { $("dlnote").textContent = msg || t("dlnote"); };
+async function save(filename, blob, okMsg){
+  if (!downloads){ // ordinary website: a plain download link works
+    try{ const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); dlNote(okMsg); }
+    catch{ dlNote(t("dlUnavail")); } return; }
+  try{ await downloads.save({filename, data: blob}); dlNote(okMsg); }
+  catch(e){ dlNote(e && e.code === "declined" ? t("dlDeclined") : t("dlUnavail")); }
+}
+$("png").onclick = async () => { const b = await new Promise(r => S.cardCanvas.toBlob(r, "image/png")); save("firasa-card.png", b, t("savedPng")); };
+$("pdf").onclick = async () => { $("pdf").disabled = true; dlNote(t("making")); try{ await fontsReady(); const b = await buildPdf(); await save("firasa-reading.pdf", b, t("savedPdf")); } finally { $("pdf").disabled = false; } };
+function updateWa(){
+  const list = match(S.feat), keys = keyTraits(list).map(k => GROUPS[k.g][lang]).join(lang === "ar" ? "، " : ", ") || t("balancedOnly");
+  const first = list.length ? composeReading(list, lang).split(/\n+/)[0] : "";
+  const r0 = list[0];
+  const parts = [t("waIntro"), "", t("waKeys") + ": " + keys];
+  if (first) parts.push("", first.length > 420 ? first.slice(0, 417) + "…" : first);
+  else if (r0) parts.push("", "«" + r0[lang].quote + "»");
+  parts.push("", t("waNote"));
+  $("wa").href = "https://wa.me/?text=" + encodeURIComponent(parts.join("\n"));
+}
+
+/* ================= Photo flow: on-device face landmarks (MediaPipe) ================= */
+let landmarker = null, loadingLm = null, pending = null;
+// The model ships as models/face_landmarker.task; hosts that refuse that extension get the same bytes as .bin.wasm.
+async function loadModel(base){
+  for (const name of ["models/face_landmarker.task", "models/face_landmarker.bin.wasm"]){
+    try{ const r = await fetch(base + name); if (r.ok) return new Uint8Array(await r.arrayBuffer()); }catch{}
+  }
+  throw new Error("model not found");
+}
+async function getLandmarker(){
+  if (landmarker) return landmarker;
+  if (!loadingLm) loadingLm = (async () => {
+    const base = new URL(".", location.href).href;
+    const { FaceLandmarker, FilesetResolver } = await import(base + "vendor/vision_bundle.mjs");
+    const fileset = await FilesetResolver.forVisionTasks(base + "vendor/wasm");
+    landmarker = await FaceLandmarker.createFromOptions(fileset, {
+      baseOptions:{ modelAssetBuffer: await loadModel(base), delegate:"CPU" },
+      runningMode:"IMAGE", numFaces:2, outputFaceBlendshapes:true
+    });
+    return landmarker;
+  })().catch(e => { loadingLm = null; throw e; });
+  return loadingLm;
+}
+async function loadImage(file){
+  const url = URL.createObjectURL(file);
+  try{
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const m = 1024, s = Math.min(1, m / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth*s); c.height = Math.round(img.naturalHeight*s);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); return c;
+  } finally { URL.revokeObjectURL(url); }
+}
+const setStatus = (msg, err) => { $("status").textContent = msg || ""; $("status").className = "status" + (err ? " err" : ""); };
+function refreshGo(){ $("go").disabled = !pending; }
+async function takeFile(file){
+  if (!file || !/^image\//.test(file.type)) { setStatus(t("badImg"), true); return; }
+  try{
+    pending = await loadImage(file);
+    const ph = $("drop"); ph.querySelectorAll("img").forEach(i => i.remove());
+    const im = document.createElement("img"); im.src = pending.toDataURL("image/jpeg", .8); im.alt = ""; ph.append(im); $("ph").hidden = true;
+    setStatus(t("ready")); refreshGo();
+    getLandmarker().catch(() => {}); // warm up while the person confirms
+  }catch{ setStatus(t("badImg"), true); }
+}
+$("file").onchange = e => takeFile(e.target.files && e.target.files[0]);
+const drop = $("drop");
+["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => takeFile(e.dataTransfer.files && e.dataTransfer.files[0]));
+const openManual = () => { $("manual").hidden = false; $("manual").scrollIntoView({behavior:"smooth", block:"start"}); };
+$("toManual").onclick = openManual;
+$("refine").onclick = () => { buildForm(S.feat); openManual(); };
+
+// Turn 478 landmarks + blendshapes into the feature vocabulary. Only expression and broad proportions
+// are measured; anything a 2D photo can't show reliably is left for the person to add.
+function measure(lm, bs, W, H){
+  const B = {}; (bs || []).forEach(c => B[c.categoryName] = c.score);
+  const d = (a,b) => Math.hypot((lm[a].x - lm[b].x) * W, (lm[a].y - lm[b].y) * H); // landmarks are normalised per axis
+  const avg = (a,b) => ((B[a]||0) + (B[b]||0)) / 2;
+  const smile = avg("mouthSmileLeft","mouthSmileRight"), jaw = B.jawOpen || 0, browDown = avg("browDownLeft","browDownRight");
+  const squint = avg("eyeSquintLeft","eyeSquintRight"), cheek = avg("cheekSquintLeft","cheekSquintRight");
+  const frown = avg("mouthFrownLeft","mouthFrownRight"), sneer = avg("noseSneerLeft","noseSneerRight");
+  const faceW = d(234,454), faceH = d(10,152);
+  const f = {};
+  f.expression = smile > .5 && jaw > .12 ? "laugh" : smile > .3 ? "smile" : (browDown > .45 && smile < .1) || sneer > .45 ? "angry" : (smile < .06 && (frown > .12 || browDown > .25)) ? "serious" : "neutral";
+  f.eyes_smiling = smile > .35 && (squint > .3 || cheek > .25);
+  f.forehead_frown = browDown > .4;
+  f.nostrils_flared = sneer > .4;
+  f.temples_veins = false;
+  if (smile < .3 && jaw < .15){ const mw = d(61,291) / faceW; f.mouth_width = mw > .44 ? "wide" : mw < .31 ? "narrow" : "medium"; }
+  const ratio = faceW / faceH; // landmark 10 sits below the hairline, so this runs higher than a full-face ratio
+  f.face_fullness = ratio < .70 ? "lean" : ratio > .92 ? "full" : "medium";
+  f.face_size = ratio >= .70 && ratio <= .92 ? "medium" : "unclear";
+  return { f, raw:{smile, jaw, browDown, squint, cheek, frown, sneer, ratio:+ratio.toFixed(3)} };
+}
+function pointsFrom(lm){
+  const p = i => [lm[i].x, lm[i].y];
+  const chin = lm[152], top = lm[10], fh = chin.y - top.y;
+  let x0 = 1, y0 = 1, x1 = 0, y1 = 0; for (const q of lm){ x0 = Math.min(x0,q.x); y0 = Math.min(y0,q.y); x1 = Math.max(x1,q.x); y1 = Math.max(y1,q.y); }
+  return {
+    box:[x0, Math.max(0, y0 - fh*.12), x1, y1],
+    points:{ forehead:[top.x, top.y + fh*.07], brow:p(105), eye:p(386), temple:p(54), nose:p(4), cheek:p(205), mouth:p(13),
+             neck: chin.y + fh*.28 < 1 ? [chin.x, chin.y + fh*.28] : null }
+  };
+}
+$("go").onclick = async () => {
+  if (!pending) return;
+  if (!$("adult").checked){ setStatus(t("needAdult"), true); $("adult").focus(); return; }
+  $("go").disabled = true;
+  try{
+    if (!landmarker) setStatus(t("loadingModel"));
+    let lmk; try{ lmk = await getLandmarker(); }catch{ setStatus(t("modelFail"), true); buildForm(); openManual(); return; }
+    setStatus(t("looking"));
+    await new Promise(r => setTimeout(r, 30));
+    const res = lmk.detect(pending);
+    const faces = res.faceLandmarks || [];
+    if (!faces.length) return setStatus(t("noFace"), true);
+    if (faces.length > 1) return setStatus(t("multi"), true);
+    const { f } = measure(faces[0], res.faceBlendshapes && res.faceBlendshapes[0] && res.faceBlendshapes[0].categories, pending.width, pending.height);
+    const geo = pointsFrom(faces[0]);
+    // features a photo can't settle stay neutral ("unclear") until the person adds them
+    const feat = { brows:"unclear", eye_size:"unclear", eye_set:"unclear", forehead_size:"unclear", neck: geo.points.neck ? "unclear" : "not_visible", ...f };
+    Object.assign(S, { feat, mode:"photo", img:pending, box:geo.box, points:geo.points, measured:f });
+    $("manualP").textContent = t("manualP2"); buildForm(feat); $("manual").hidden = false;
+    setStatus(""); renderAll(); $("result").scrollIntoView({behavior:"smooth", block:"start"});
+  }catch(e){ setStatus(t("modelFail"), true); }
+  finally{ refreshGo(); }
+};
+$("mgo").onclick = () => {
+  const feat = {}; for (const F of FEATURES) feat[F.k] = norm($("m_" + F.k).value);
+  if (S.mode === "photo" && S.img) Object.assign(S, { feat }); // keep photo and markers, refine features
+  else Object.assign(S, { feat, mode:"manual", img:null, box:null, points:null });
+  renderAll(); $("result").scrollIntoView({behavior:"smooth", block:"start"});
+};
+
+/* ================= Boot ================= */
+function fontsReady(){
+  if (!document.fonts) return Promise.resolve();
+  return Promise.all(['700 40px "Amiri"','400 30px "Amiri"','500 24px "IBM Plex Sans Arabic"','700 40px "Cormorant Garamond"','italic 500 28px "Cormorant Garamond"','500 24px "Inter"'].map(f => document.fonts.load(f).catch(()=>{}))).then(()=>{});
+}
+applyLang();
+fontsReady().then(() => drawCard());
+(async () => {
+  try{ downloads = window.claude && window.claude.use ? await window.claude.use("downloads") : null; }catch{ downloads = null; }
+})();
+</script>
