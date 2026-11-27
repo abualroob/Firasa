@@ -154,6 +154,11 @@ footer{padding-block:36px 48px;color:var(--muted);font-size:13px;display:flex;fl
 .adult input{width:18px;height:18px;margin-top:3px;accent-color:var(--gold-strong);flex:none}
 </style>
 
+<script>
+  // GoatCounter: anonymous visit counts, no cookies. Count the page by its path only, so share codes in ?r= are not logged.
+  window.goatcounter = { path: function(){ return location.pathname || "/"; } };
+</script>
+<script data-goatcounter="https://alfarasa.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 <div class="hero">
@@ -406,7 +411,7 @@ const T = {
   disc:"الفراسة علم تراثي ظني، والرازي نفسه يقول إن الدليل الواحد لا يفيد إلا ظنًا ضعيفًا. ولا يثبت العلم الحديث أن ملامح الوجه تكشف الطباع. هذه القراءة للتسلية والتعرف على التراث، فلا تبنِ عليها حكمًا على نفسك أو على غيرك.",
   src:"المصدر: كتاب الفراسة لفخر الدين الرازي (ت ٦٠٦ هـ)، المقالة الثالثة «في دلائل الأعضاء الجزئية». أرقام الصفحات من طبعة مكتبة القرآن بالقاهرة بتحقيق مصطفى عاشور، والنص المقتبس نص الرازي وحده.",
   excl:"أغفلنا من قواعد الكتاب ما يقوم على لون العين أو البشرة أو شكل الأنف والشفاه لارتباطه بالأصل والعرق، وما يحكم بالجهل أو الخبث أو الشر، وما لا يظهر في صورة ثابتة.",
-  tech:"قياس الملامح بنموذج MediaPipe Face Landmarker من Google (رخصة Apache 2.0) يعمل داخل المتصفح.",
+  tech:"قياس الملامح بنموذج MediaPipe Face Landmarker من Google (رخصة Apache 2.0) يعمل داخل المتصفح. نعدّ الزيارات دون تعريف بالزائر عبر GoatCounter، بلا ملفات تعريف ارتباط.",
   cardSub:"على منهج فخر الدين الرازي",cardKeys:"أبرز السمات",cardFoot:"كتاب الفراسة للرازي · قراءة تراثية للتسلية",
   balancedOnly:"ملامح معتدلة",noRules:"لم تظهر في الصورة علامة بارزة من علامات الرازي، فالملامح أقرب إلى الاعتدال، وهو عنده أفضل الأحوال. ويمكنك إكمال ما لا تظهره الصورة من الزر أدناه.",
   page:"ص",loadingModel:"يجهّز أداة قياس الملامح (مرة واحدة، نحو ١٣ ميغابايت)…",looking:"يقيس الملامح…",ready:"الصورة جاهزة.",needAdult:"أكّد أن عمرك ١٨ سنة أو أكثر للمتابعة.",
@@ -437,7 +442,7 @@ const T = {
   disc:"Firasa (physiognomy) is a heritage art of conjecture; al-Razi himself says a single sign gives only weak probability. Modern science does not support reading character from facial features. This reading is for entertainment and cultural interest, not a judgment of you or anyone else.",
   src:"Source: Kitab al-Firasa by Fakhr al-Din al-Razi (d. 606 AH / 1210 CE), Part Three, “On the signs of the individual organs”. Page numbers follow the Maktabat al-Qur'an edition (Cairo, ed. Mustafa Ashur). Quotations are al-Razi's own text; English renderings are ours.",
   excl:"We left out al-Razi's rules based on eye or skin colour and the shape of the nose and lips, which track ancestry and ethnicity; rules that judge someone ignorant, wicked or malicious; and signs that a still photo cannot show.",
-  tech:"Feature measurement uses Google's MediaPipe Face Landmarker (Apache 2.0), running in your browser.",
+  tech:"Feature measurement uses Google's MediaPipe Face Landmarker (Apache 2.0), running in your browser. Visits are counted anonymously with GoatCounter, without cookies.",
   cardSub:"After Fakhr al-Din al-Razi",cardKeys:"Key traits",cardFoot:"Kitab al-Firasa by al-Razi · a heritage reading for fun",
   balancedOnly:"Balanced features",noRules:"None of al-Razi's pronounced signs appear in the photo. Your features lean to the middle, which he held to be the best state. You can add what a photo can't show with the button below.",
   page:"p.",loadingModel:"Preparing the face measurement tool (once, about 13 MB)…",looking:"Measuring your features…",ready:"Photo ready.",needAdult:"Please confirm you are 18 or older to continue.",
@@ -498,7 +503,7 @@ function applyLang(){
   document.querySelectorAll(".steps b").forEach((b,i) => b.textContent = num(i+1));
   buildForm(); renderAll();
 }
-function setLang(l){ if (l === lang) return; lang = l; try{ localStorage.setItem("firasa-lang", l); }catch{} applyLang(); }
+function setLang(l){ if (l === lang) return; lang = l; track("language-" + l); try{ localStorage.setItem("firasa-lang", l); }catch{} applyLang(); }
 $("l-ar").onclick = () => setLang("ar"); $("l-en").onclick = () => setLang("en");
 
 function buildForm(fill){
@@ -714,8 +719,8 @@ async function save(filename, blob, okMsg){
   try{ await downloads.save({filename, data: blob}); dlNote(okMsg); }
   catch(e){ dlNote(e && e.code === "declined" ? t("dlDeclined") : t("dlUnavail")); }
 }
-$("png").onclick = async () => { const b = await new Promise(r => S.cardCanvas.toBlob(r, "image/png")); save("firasa-card.png", b, t("savedPng")); };
-$("pdf").onclick = async () => { $("pdf").disabled = true; dlNote(t("making")); try{ await fontsReady(); const b = await buildPdf(); await save("firasa-reading.pdf", b, t("savedPdf")); } finally { $("pdf").disabled = false; } };
+$("png").onclick = async () => { track("download-image"); const b = await new Promise(r => S.cardCanvas.toBlob(r, "image/png")); save("firasa-card.png", b, t("savedPng")); };
+$("pdf").onclick = async () => { track("download-pdf"); $("pdf").disabled = true; dlNote(t("making")); try{ await fontsReady(); const b = await buildPdf(); await save("firasa-reading.pdf", b, t("savedPdf")); } finally { $("pdf").disabled = false; } };
 // Share code: one base-36 digit per feature (index of its value), plus the language. No photo, no measurements.
 function encodeFeat(feat){
   return FEATURES.map(F => { const i = Object.keys(F.o).indexOf(String(feat[F.k])); return (i < 0 ? 0 : i).toString(36); }).join("");
@@ -894,19 +899,20 @@ function pointsFrom(lm){
   };
 }
 $("go").onclick = async () => {
+  const fail = k => { track("photo-rejected-" + k); setStatus(t(k), true); };
   if (!pending) return;
   if (!$("adult").checked){ setStatus(t("needAdult"), true); $("adult").focus(); return; }
   $("go").disabled = true;
   try{
     if (!landmarker) setStatus(t("loadingModel"));
-    let lmk; try{ lmk = await getLandmarker(); }catch{ setStatus(t("modelFail"), true); buildForm(); openManual(); return; }
+    let lmk; try{ lmk = await getLandmarker(); }catch{ fail("modelFail"); buildForm(); openManual(); return; }
     setStatus(t("looking"));
     await new Promise(r => setTimeout(r, 30));
     let img = pending, res = lmk.detect(img), faces = res.faceLandmarks || [];
     // ignore small faces in the background when one face clearly dominates
     if (faces.length > 1){
       const idx = faces.map((f, i) => [areaOf(f), i]).sort((a, b) => b[0] - a[0]);
-      if (idx[1][0] > idx[0][0] * .2) return setStatus(t("multi"), true);
+      if (idx[1][0] > idx[0][0] * .2) return fail("multi");
       const keep = idx[0][1]; faces = [faces[keep]];
       res = { faceLandmarks: faces, faceBlendshapes: res.faceBlendshapes ? [res.faceBlendshapes[keep]] : [] };
     }
@@ -918,27 +924,29 @@ $("go").onclick = async () => {
       if (found){
         const crop = cropAround(found, src), r2 = lmk.detect(crop);
         if ((r2.faceLandmarks || []).length === 1){ img = crop; res = r2; faces = r2.faceLandmarks; }
-        else if (!faces.length && (bbox(found).x1 - bbox(found).x0) * src.width < 70) return setStatus(t("tooSmall"), true);
+        else if (!faces.length && (bbox(found).x1 - bbox(found).x0) * src.width < 70) return fail("tooSmall");
       }
     }
     if (!faces.length){
       const st = imageStats(img, {x0:0, y0:0, x1:1, y1:1});
-      return setStatus(t(st.mean < 30 ? "dark" : st.mean > 225 || st.clipped > .45 ? "bright" : "noFace"), true);
+      return fail(st.mean < 30 ? "dark" : st.mean > 225 || st.clipped > .45 ? "bright" : "noFace");
     }
     const bsc = res.faceBlendshapes && res.faceBlendshapes[0] && res.faceBlendshapes[0].categories;
     const problem = checkFace(faces[0], bsc, img);
-    if (problem) return setStatus(t(problem), true);
+    if (problem) return fail(problem);
     const { f } = measure(faces[0], bsc, img.width, img.height);
     const geo = pointsFrom(faces[0]);
     // features a photo can't settle stay neutral ("unclear") until the person adds them
     const feat = { brows:"unclear", eye_size:"unclear", eye_set:"unclear", forehead_size:"unclear", neck: geo.points.neck ? "unclear" : "not_visible", ...f };
     Object.assign(S, { feat, mode:"photo", img, box:geo.box, points:geo.points, measured:f });
     $("manualP").textContent = t("manualP2"); buildForm(feat); $("manual").hidden = false;
+    track("photo-analyzed");
     setStatus(""); renderAll(); $("result").scrollIntoView({behavior:"smooth", block:"start"});
-  }catch(e){ setStatus(t("modelFail"), true); }
+  }catch(e){ fail("modelFail"); }
   finally{ refreshGo(); }
 };
-$("mgo").onclick = () => {
+$("wa").addEventListener("click", () => track("share-whatsapp"));
+$("mgo").onclick = () => { track(S.mode === "photo" ? "features-refined" : "reading-from-description");
   const feat = {}; for (const F of FEATURES) feat[F.k] = norm($("m_" + F.k).value);
   if (S.mode === "photo" && S.img) Object.assign(S, { feat }); // keep photo and markers, refine features
   else Object.assign(S, { feat, mode:"manual", img:null, box:null, points:null });
@@ -946,6 +954,14 @@ $("mgo").onclick = () => {
 };
 
 /* ================= Boot ================= */
+// Count a named event in GoatCounter; waits briefly if the counter script is still loading, and never breaks the page.
+function track(name, tries = 0){
+  try{
+    const gc = window.goatcounter;
+    if (gc && gc.count) gc.count({ path: name, title: name, event: true });
+    else if (tries < 20) setTimeout(() => track(name, tries + 1), 500);
+  }catch{}
+}
 function fontsReady(){
   if (!document.fonts) return Promise.resolve();
   return Promise.all(['700 40px "Amiri"','400 30px "Amiri"','500 24px "IBM Plex Sans Arabic"','700 40px "Cormorant Garamond"','italic 500 28px "Cormorant Garamond"','500 24px "Inter"'].map(f => document.fonts.load(f).catch(()=>{}))).then(()=>{});
@@ -953,7 +969,7 @@ function fontsReady(){
 (function readShared(){
   const q = new URLSearchParams(location.search), feat = decodeFeat(q.get("r"));
   if (q.get("l") === "en" || q.get("l") === "ar") lang = q.get("l");
-  if (feat){ Object.assign(S, { feat, mode:"shared" }); requestAnimationFrame(() => $("result").scrollIntoView({block:"start"})); }
+  if (feat){ track("shared-link-opened"); Object.assign(S, { feat, mode:"shared" }); requestAnimationFrame(() => $("result").scrollIntoView({block:"start"})); }
 })();
 applyLang();
 fontsReady().then(() => drawCard());
