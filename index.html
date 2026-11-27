@@ -172,7 +172,7 @@ footer{padding-block:36px 48px;color:var(--muted);font-size:13px;display:flex;fl
       </div>
       <div class="mirror">
         <label class="drop" id="drop">
-          <input id="file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Photo">
+          <input id="file" type="file" accept="image/*" aria-label="Photo">
           <div class="ph" id="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="4"/></svg><strong data-i="dropT"></strong><span data-i="dropS"></span></div>
         </label>
         <label class="adult"><input type="checkbox" id="adult"><span data-i="adult"></span></label>
@@ -411,7 +411,7 @@ const T = {
   balancedOnly:"ملامح معتدلة",noRules:"لم تظهر في الصورة علامة بارزة من علامات الرازي، فالملامح أقرب إلى الاعتدال، وهو عنده أفضل الأحوال. ويمكنك إكمال ما لا تظهره الصورة من الزر أدناه.",
   page:"ص",loadingModel:"يجهّز أداة قياس الملامح (مرة واحدة، نحو ١٣ ميغابايت)…",looking:"يقيس الملامح…",ready:"الصورة جاهزة.",needAdult:"أكّد أن عمرك ١٨ سنة أو أكثر للمتابعة.",
   modelFail:"تعذّر تشغيل أداة القياس في هذا المتصفح. صِف ملامحك بنفسك من الأسفل.",badImg:"تعذّر فتح هذه الصورة. جرّب JPG أو PNG.",
-  noFace:"لم نجد وجهًا واضحًا في الصورة. جرّب صورة أمامية بإضاءة أفضل.",multi:"نحتاج صورة فيها وجه واحد فقط.",
+  noFace:"لم نجد وجهًا واضحًا في الصورة. استخدم صورة أمامية لوجه واحد يملأ جزءًا كبيرًا منها، بإضاءة جيدة.",multi:"في الصورة أكثر من وجه. نحتاج صورة فيها وجه واحد فقط، أو قُصّ الصورة حول وجهك.",tooSmall:"الوجه صغير جدًا في الصورة. قُصّ الصورة حول الوجه أو التقطها من مسافة أقرب.",cutOff:"جزء من الوجه خارج الصورة. تأكد أن الوجه كله ظاهر من الجبهة إلى الذقن.",turned:"الرأس ملتفت إلى الجانب. استخدم صورة تنظر فيها مباشرة إلى الكاميرا.",tilted:"الرأس مائل كثيرًا. اجعل رأسك مستقيمًا والكاميرا في مستوى وجهك.",pitch:"انظر أمامك مباشرة، لا إلى الأعلى ولا إلى الأسفل.",dark:"الصورة مظلمة جدًا لقراءة الملامح. جرّب إضاءة أفضل.",bright:"الصورة ساطعة جدًا والملامح باهتة. تجنّب الضوء القوي المباشر.",blurry:"الصورة غير واضحة. ثبّت الكاميرا وجرّب صورة أوضح.",eyesClosed:"يبدو أن العينين مغمضتان. استخدم صورة بعينين مفتوحتين.",heic:"لا يستطيع هذا المتصفح فتح صور HEIC. اختر صورة JPG أو التقط لقطة شاشة للصورة.",imgSmall:"الصورة صغيرة جدًا. استخدم صورة لا يقل عرضها عن ٣٠٠ بكسل.",
   savedPdf:"حُفظ ملف PDF.",savedPng:"حُفظت الصورة.",dlUnavail:"التنزيل غير متاح هنا. اضغط مطولًا على البطاقة لحفظها.",dlDeclined:"أُلغي التنزيل.",making:"يجهّز الملف…",
   waIntro:"قرأتُ ملامحي في «مرآة الفراسة» على منهج فخر الدين الرازي.",waKeys:"أبرز السمات",waNote:"قراءة تراثية للتسلية، من كتاب الفراسة للرازي.",
   pdfTitle:"قراءة الفراسة",pdfDate:"التاريخ",sep:"، ",and:" و",
@@ -442,7 +442,7 @@ const T = {
   balancedOnly:"Balanced features",noRules:"None of al-Razi's pronounced signs appear in the photo. Your features lean to the middle, which he held to be the best state. You can add what a photo can't show with the button below.",
   page:"p.",loadingModel:"Preparing the face measurement tool (once, about 13 MB)…",looking:"Measuring your features…",ready:"Photo ready.",needAdult:"Please confirm you are 18 or older to continue.",
   modelFail:"The measurement tool could not run in this browser. Describe your features yourself below.",badImg:"That image could not be opened. Try a JPG or PNG.",
-  noFace:"We could not find a clear face. Try a front-facing photo with better light.",multi:"Please use a photo with exactly one face.",
+  noFace:"We could not find a clear face. Use a front-facing, well-lit photo where your face fills a good part of the picture.",multi:"There is more than one face in this photo. Use a photo with only your face, or crop it around your face.",tooSmall:"The face is too small in this photo. Crop closer to the face or take the photo from nearer.",cutOff:"Part of the face is outside the photo. Make sure the whole face, from forehead to chin, is visible.",turned:"The head is turned to the side. Use a photo looking straight at the camera.",tilted:"The head is tilted too far. Keep your head straight and the camera level with your face.",pitch:"Look straight ahead, not up or down.",dark:"The photo is too dark to read the features. Try again in better light.",bright:"The photo is too bright and the features are washed out. Avoid strong direct light.",blurry:"The photo is blurry. Hold the camera still and try a sharper photo.",eyesClosed:"Your eyes look closed. Use a photo with your eyes open.",heic:"This browser cannot open HEIC photos. Choose a JPG, or take a screenshot of the photo.",imgSmall:"This image is too small. Use a photo at least 300 pixels wide.",
   savedPdf:"PDF saved.",savedPng:"Image saved.",dlUnavail:"Downloads are not available here. Long-press the card to save it.",dlDeclined:"Download cancelled.",making:"Preparing the file…",
   waIntro:"I had my face read in “Mirror of Firasa”, after Fakhr al-Din al-Razi.",waKeys:"Key traits",waNote:"A heritage reading for fun, from al-Razi's Kitab al-Firasa.",
   pdfTitle:"Firasa reading",pdfDate:"Date",sep:", ",and:" and ",
@@ -736,7 +736,7 @@ function updateWa(){
 }
 $("tryMine").onclick = () => { history.replaceState(null, "", location.pathname); Object.assign(S, {feat:EXAMPLE, mode:"example"}); renderAll(); window.scrollTo({top:0, behavior:"smooth"}); };
 /* ================= Photo flow: on-device face landmarks (MediaPipe) ================= */
-let landmarker = null, loadingLm = null, pending = null;
+let landmarker = null, loadingLm = null, pending = null, pendingFull = null;
 // The model ships as models/face_landmarker.task; hosts that refuse that extension get the same bytes as .bin.wasm.
 async function loadModel(base){
   for (const name of ["models/face_landmarker.task", "models/face_landmarker.bin.wasm"]){
@@ -758,26 +758,35 @@ async function getLandmarker(){
   })().catch(e => { loadingLm = null; throw e; });
   return loadingLm;
 }
+function toCanvas(src, max, sx = 0, sy = 0, sw = src.naturalWidth || src.width, sh = src.naturalHeight || src.height, min = 0){
+  const s = Math.max(Math.min(1, max / Math.max(sw, sh)), min / Math.max(sw, sh)), c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(sw*s)); c.height = Math.max(1, Math.round(sh*s));
+  c.getContext("2d").drawImage(src, sx, sy, sw, sh, 0, 0, c.width, c.height); return c;
+}
 async function loadImage(file){
   const url = URL.createObjectURL(file);
   try{
     const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
-    const m = 1024, s = Math.min(1, m / Math.max(img.naturalWidth, img.naturalHeight));
-    const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth*s); c.height = Math.round(img.naturalHeight*s);
-    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); return c;
+    return { small: toCanvas(img, 1024), full: toCanvas(img, 3200), w: img.naturalWidth, h: img.naturalHeight };
   } finally { URL.revokeObjectURL(url); }
 }
 const setStatus = (msg, err) => { $("status").textContent = msg || ""; $("status").className = "status" + (err ? " err" : ""); };
 function refreshGo(){ $("go").disabled = !pending; }
 async function takeFile(file){
-  if (!file || !/^image\//.test(file.type)) { setStatus(t("badImg"), true); return; }
+  const name = (file && file.name || "").toLowerCase();
+  const isImg = file && (/^image\//.test(file.type) || (!file.type && /\.(jpe?g|png|webp|gif|bmp|heic|heif|avif)$/.test(name)));
+  const isHeic = file && (/hei[cf]/.test(file.type) || /\.hei[cf]$/.test(name));
+  const reject = k => { pending = pendingFull = null; $("drop").querySelectorAll("img").forEach(i => i.remove()); $("ph").hidden = false; refreshGo(); setStatus(t(k), true); };
+  if (!isImg) return reject("badImg");
   try{
-    pending = await loadImage(file);
+    const L = await loadImage(file);
+    if (Math.min(L.w, L.h) < 200 || Math.max(L.w, L.h) < 300) return reject("imgSmall");
+    pending = L.small; pendingFull = L.full;
     const ph = $("drop"); ph.querySelectorAll("img").forEach(i => i.remove());
     const im = document.createElement("img"); im.src = pending.toDataURL("image/jpeg", .8); im.alt = ""; ph.append(im); $("ph").hidden = true;
     setStatus(t("ready")); refreshGo();
     getLandmarker().catch(() => {}); // warm up while the person confirms
-  }catch{ setStatus(t("badImg"), true); }
+  }catch{ reject(isHeic ? "heic" : "badImg"); }
 }
 $("file").onchange = e => takeFile(e.target.files && e.target.files[0]);
 const drop = $("drop");
@@ -810,6 +819,70 @@ function measure(lm, bs, W, H){
   f.face_size = ratio >= .70 && ratio <= .92 ? "medium" : "unclear";
   return { f, raw:{smile, jaw, browDown, squint, cheek, frown, sneer, ratio:+ratio.toFixed(3)} };
 }
+// ---- photo checks: say plainly what is wrong instead of reading a poor photo ----
+function bbox(lm){ let x0 = 1, y0 = 1, x1 = 0, y1 = 0; for (const q of lm){ x0 = Math.min(x0,q.x); y0 = Math.min(y0,q.y); x1 = Math.max(x1,q.x); y1 = Math.max(y1,q.y); } return {x0,y0,x1,y1}; }
+function areaOf(lm){ const b = bbox(lm); return (b.x1-b.x0)*(b.y1-b.y0); }
+// brightness and sharpness of the face region, measured on a 160px-wide copy so phone and camera photos compare fairly
+function imageStats(cv, b){
+  const W = cv.width, H = cv.height;
+  const sx = Math.max(0, b.x0*W), sy = Math.max(0, b.y0*H), sw = Math.min(W, b.x1*W) - sx, sh = Math.min(H, b.y1*H) - sy;
+  const n = 160, c = toCanvas(cv, 99999, sx, sy, sw, sh), w = n, h = Math.max(16, Math.round(n*sh/sw));
+  const d = document.createElement("canvas"); d.width = w; d.height = h; const x = d.getContext("2d", {willReadFrequently:true});
+  x.drawImage(c, 0, 0, w, h); const px = x.getImageData(0, 0, w, h).data, g = new Float32Array(w*h);
+  let sum = 0, clip = 0;
+  for (let i = 0; i < w*h; i++){ const v = .299*px[i*4] + .587*px[i*4+1] + .114*px[i*4+2]; g[i] = v; sum += v; if (v > 248) clip++; }
+  let lsum = 0, lsq = 0, k = 0;
+  for (let yy = 1; yy < h-1; yy++) for (let xx = 1; xx < w-1; xx++){
+    const i = yy*w + xx, L = 4*g[i] - g[i-1] - g[i+1] - g[i-w] - g[i+w]; lsum += L; lsq += L*L; k++;
+  }
+  const mean = sum/(w*h), lm = lsum/k;
+  return { mean, clipped: clip/(w*h), sharp: lsq/k - lm*lm };
+}
+function checkFace(lm, bs, cv){
+  const W = cv.width, H = cv.height, b = bbox(lm), m = .004;
+  if (b.x0 < m || b.y0 < m || b.x1 > 1-m || b.y1 > 1-m) return "cutOff";
+  if ((b.x1-b.x0)*W < 70) return "tooSmall";
+  const X = i => lm[i].x*W, Y = i => lm[i].y*H;
+  const roll = Math.abs(Math.atan2(Y(263)-Y(33), X(263)-X(33)) * 180/Math.PI);
+  if (roll > 22) return "tilted";
+  const dl = Math.hypot(X(1)-X(234), Y(1)-Y(234)), dr = Math.hypot(X(1)-X(454), Y(1)-Y(454));
+  if (Math.abs(dl-dr)/(dl+dr) > .3) return "turned";
+  // nose tip between the eye line and the chin: about 0.4 when looking straight ahead
+  const eyeY = (Y(33)+Y(263))/2, p = (Y(1)-eyeY) / (Y(152)-eyeY);
+  if (p < .22 || p > .6) return "pitch";
+  const B = {}; (bs || []).forEach(c => B[c.categoryName] = c.score);
+  if ((B.eyeBlinkLeft||0) > .72 && (B.eyeBlinkRight||0) > .72 && (B.mouthSmileLeft||0) < .4) return "eyesClosed";
+  const st = imageStats(cv, b);
+  if (st.mean < 52) return "dark";
+  if (st.mean > 225 || st.clipped > .35) return "bright";
+  if (st.sharp < 12) return "blurry";
+  return null;
+}
+// A face that is small in a large photo can be missed or measured roughly. Look for it in overlapping
+// tiles of the full-size photo, then crop around it and measure again.
+function cropAround(lm, src){
+  const b = bbox(lm), W = src.width, H = src.height;
+  const cx = (b.x0+b.x1)/2*W, cy = (b.y0+b.y1)/2*H, side = Math.max((b.x1-b.x0)*W, (b.y1-b.y0)*H) * 2.1;
+  const sx = Math.max(0, cx - side/2), sy = Math.max(0, cy - side/2);
+  return toCanvas(src, 1024, sx, sy, Math.min(W - sx, side), Math.min(H - sy, side), 640);
+}
+function findInTiles(lmk, src){
+  const W = src.width, H = src.height;
+  for (const f of [.55, .3]){
+    const tw = W*f, th = H*f, steps = [];
+    for (let v = 0; v < 1 - f + 1e-6; v += f/2) steps.push(v);
+    if (steps[steps.length-1] < 1 - f - 1e-6) steps.push(1 - f);
+    for (const ty of steps) for (const tx of steps){
+    const sx = tx*W, sy = ty*H, tile = toCanvas(src, 1024, sx, sy, tw, th, 512);
+    const r = lmk.detect(tile), faces = r.faceLandmarks || [];
+    if (faces.length){
+      const k = tile.width / tw; // tile px per source px
+      return faces[0].map(q => ({ x:(sx + q.x*tile.width/k)/W, y:(sy + q.y*tile.height/k)/H, z:q.z }));
+    }
+    }
+  }
+  return null;
+}
 function pointsFrom(lm){
   const p = i => [lm[i].x, lm[i].y];
   const chin = lm[152], top = lm[10], fh = chin.y - top.y;
@@ -829,15 +902,37 @@ $("go").onclick = async () => {
     let lmk; try{ lmk = await getLandmarker(); }catch{ setStatus(t("modelFail"), true); buildForm(); openManual(); return; }
     setStatus(t("looking"));
     await new Promise(r => setTimeout(r, 30));
-    const res = lmk.detect(pending);
-    const faces = res.faceLandmarks || [];
-    if (!faces.length) return setStatus(t("noFace"), true);
-    if (faces.length > 1) return setStatus(t("multi"), true);
-    const { f } = measure(faces[0], res.faceBlendshapes && res.faceBlendshapes[0] && res.faceBlendshapes[0].categories, pending.width, pending.height);
+    let img = pending, res = lmk.detect(img), faces = res.faceLandmarks || [];
+    // ignore small faces in the background when one face clearly dominates
+    if (faces.length > 1){
+      const idx = faces.map((f, i) => [areaOf(f), i]).sort((a, b) => b[0] - a[0]);
+      if (idx[1][0] > idx[0][0] * .2) return setStatus(t("multi"), true);
+      const keep = idx[0][1]; faces = [faces[keep]];
+      res = { faceLandmarks: faces, faceBlendshapes: res.faceBlendshapes ? [res.faceBlendshapes[keep]] : [] };
+    }
+    // small or missed face: crop around it from the full-size photo and measure again
+    const small = faces.length && (bbox(faces[0]).x1 - bbox(faces[0]).x0) * img.width < 260;
+    if (!faces.length || small){
+      const src = pendingFull || pending;
+      const found = faces.length ? faces[0].map(q => q) : findInTiles(lmk, src);
+      if (found){
+        const crop = cropAround(found, src), r2 = lmk.detect(crop);
+        if ((r2.faceLandmarks || []).length === 1){ img = crop; res = r2; faces = r2.faceLandmarks; }
+        else if (!faces.length && (bbox(found).x1 - bbox(found).x0) * src.width < 70) return setStatus(t("tooSmall"), true);
+      }
+    }
+    if (!faces.length){
+      const st = imageStats(img, {x0:0, y0:0, x1:1, y1:1});
+      return setStatus(t(st.mean < 30 ? "dark" : st.mean > 225 || st.clipped > .45 ? "bright" : "noFace"), true);
+    }
+    const bsc = res.faceBlendshapes && res.faceBlendshapes[0] && res.faceBlendshapes[0].categories;
+    const problem = checkFace(faces[0], bsc, img);
+    if (problem) return setStatus(t(problem), true);
+    const { f } = measure(faces[0], bsc, img.width, img.height);
     const geo = pointsFrom(faces[0]);
     // features a photo can't settle stay neutral ("unclear") until the person adds them
     const feat = { brows:"unclear", eye_size:"unclear", eye_set:"unclear", forehead_size:"unclear", neck: geo.points.neck ? "unclear" : "not_visible", ...f };
-    Object.assign(S, { feat, mode:"photo", img:pending, box:geo.box, points:geo.points, measured:f });
+    Object.assign(S, { feat, mode:"photo", img, box:geo.box, points:geo.points, measured:f });
     $("manualP").textContent = t("manualP2"); buildForm(feat); $("manual").hidden = false;
     setStatus(""); renderAll(); $("result").scrollIntoView({behavior:"smooth", block:"start"});
   }catch(e){ setStatus(t("modelFail"), true); }
