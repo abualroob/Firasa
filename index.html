@@ -41,7 +41,14 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 /* hero */
 .hero{background:radial-gradient(120% 90% at 85% 0%,var(--hero-2),var(--hero) 60%);color:var(--on-hero);position:relative;overflow:hidden;
   margin-top:calc(-1 * env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px)}
-.hero::before{content:"";position:absolute;inset:0;opacity:.07;pointer-events:none;
+.hero h1,.hero .sub,.hero .kicker{text-shadow:0 2px 18px rgba(5,14,17,.85)}
+.hero-art{display:block;width:100%;height:340px;object-fit:cover;object-position:60% 35%;margin:-12px 0 6px;
+  -webkit-mask-image:linear-gradient(180deg,#000 60%,transparent),linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(180deg,#000 60%,transparent),linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-composite:intersect}
+@media (max-width:860px){.hero-art{width:calc(100% + 40px);max-width:none;margin:-8px -20px 8px;height:300px;object-position:62% 30%;
+    -webkit-mask-image:linear-gradient(180deg,#000 55%,transparent);mask-image:linear-gradient(180deg,#000 55%,transparent)}}
+.artcap{position:absolute;bottom:10px;inset-inline-end:max(20px,env(safe-area-inset-right,0px));font-size:11px;color:var(--on-hero-muted);opacity:.75;margin:0}
+.hero::before{content:"";position:absolute;inset:0;opacity:.04;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='%23d5a447' stroke-width='1.2'%3E%3Crect x='22' y='22' width='28' height='28'/%3E%3Crect x='22' y='22' width='28' height='28' transform='rotate(45 36 36)'/%3E%3C/g%3E%3C/svg%3E")}
 .bar{display:flex;justify-content:space-between;align-items:center;padding-block:18px;position:relative}
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:24px;font-weight:700;letter-spacing:.01em}
@@ -50,7 +57,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .lang button{all:unset;cursor:pointer;padding:6px 14px;font:600 13px var(--f-body-en);color:var(--on-hero-muted)}
 .lang button[aria-pressed="true"]{background:var(--gold-strong);color:#14232a}
 .lang button:focus-visible{outline:2px solid var(--gold-strong);outline-offset:2px}
-.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding-block:28px 64px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding-block:8px 64px;position:relative}
 @media (max-width:860px){.hero-grid{grid-template-columns:1fr;gap:28px;padding-block:12px 40px}}
 .kicker{color:var(--gold-strong);font-weight:600;font-size:14px;letter-spacing:.04em}
 :root[lang="en"] .kicker{text-transform:uppercase;font-size:12px;letter-spacing:.12em}
@@ -157,6 +164,7 @@ footer{padding-block:36px 48px;color:var(--muted);font-size:13px;display:flex;fl
     </div>
     <div class="hero-grid">
       <div>
+        <img class="hero-art" src="razi-art.svg?v=4" alt="" aria-hidden="true">
         <div class="kicker" data-i="kicker"></div>
         <h1 data-i="h1"></h1>
         <p class="sub" data-i="sub"></p>
@@ -177,6 +185,7 @@ footer{padding-block:36px 48px;color:var(--muted);font-size:13px;display:flex;fl
       </div>
     </div>
   </div></div>
+  <p class="artcap" data-i="artCap"></p>
 </div>
 
 <div class="gut"><div class="in">
@@ -388,7 +397,7 @@ const T = {
   privacy:"صورتك لا تغادر جهازك. التحليل يجري كاملًا داخل متصفحك، ولا نرفعها أو نحفظها في أي مكان.",
   manualH:"صِف ملامحك",manualP:"اختر أقرب وصف لكل عضو، ثم اعرض القراءة.",manualP2:"ملأنا ما قسناه من صورتك. أكمل ما لا تظهره الصورة (الحاجبان، موضع العين، العنق) ثم حدّث القراءة.",
   manualGo:"اعرض القراءة",refine:"أكمل الملامح وعدّل القراءة",
-  resH:"قراءة الملامح",tagEx:"قراءة مثال",tagPhoto:"قراءة صورتك",tagManual:"قراءة من وصفك",tagShared:"قراءة مُشارَكة",aboutK:"صاحب الكتاب",aboutH:"فخر الدين الرازي",
+  resH:"قراءة الملامح",tagEx:"قراءة مثال",tagPhoto:"قراءة صورتك",tagManual:"قراءة من وصفك",tagShared:"قراءة مُشارَكة",aboutK:"صاحب الكتاب",artCap:"رسم فني متخيَّل للرازي، وليس صورة حقيقية.",aboutH:"فخر الدين الرازي",
   aboutP1:"أبو عبد الله محمد بن عمر الرازي، المعروف بفخر الدين وبابن خطيب الرّي (٥٤٤–٦٠٦ هـ / ١١٥٠–١٢١٠ م). وُلد في الرّي قرب طهران اليوم، وتوفي في هراة. من كبار علماء الكلام والتفسير والفلسفة في عصره، وصاحب التفسير الكبير «مفاتيح الغيب».",
   aboutP2:"جمع في «كتاب الفراسة» ما بلغه من علم الفراسة عند اليونان والعرب، ورتّبه على طريقة المتكلمين في الاستدلال: لا يحكم بدليل واحد، ويوازن بين الدلائل إذا تعارضت.",
   aboutNote:"ولا يُخلط بينه وبين أبي بكر محمد بن زكريا الرازي الطبيب (ت ٣١٣ هـ).",
@@ -419,7 +428,7 @@ const T = {
   privacy:"Your photo never leaves your device. The analysis runs entirely in your browser; nothing is uploaded or stored.",
   manualH:"Describe your features",manualP:"Pick the closest description for each feature, then show the reading.",manualP2:"We filled in what we measured from your photo. Complete what a photo can't show (eyebrows, eye setting, neck) and update the reading.",
   manualGo:"Show reading",refine:"Complete features and update the reading",
-  resH:"Your reading",tagEx:"Example reading",tagPhoto:"Reading of your photo",tagManual:"Reading from your description",tagShared:"Shared reading",aboutK:"The author",aboutH:"Fakhr al-Din al-Razi",
+  resH:"Your reading",tagEx:"Example reading",tagPhoto:"Reading of your photo",tagManual:"Reading from your description",tagShared:"Shared reading",aboutK:"The author",artCap:"An imagined artistic depiction of al-Razi, not a real portrait.",aboutH:"Fakhr al-Din al-Razi",
   aboutP1:"Abu Abdallah Muhammad ibn Umar al-Razi, known as Fakhr al-Din (1150–1210 CE, 544–606 AH), was born in Rayy, near today's Tehran, and died in Herat. He was one of the leading theologians, Qur'an commentators and philosophers of his age, and wrote the great commentary Mafatih al-Ghayb.",
   aboutP2:"In Kitab al-Firasa he gathered the Greek and Arab learning on physiognomy and set it out with a theologian's method: never judge by one sign alone, and weigh the signs against each other when they conflict.",
   aboutNote:"Not to be confused with Abu Bakr Muhammad ibn Zakariya al-Razi, the physician (d. 925 CE).",
