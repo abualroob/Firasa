@@ -6,6 +6,11 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>مرآة الفراسة</title>
 <meta name="description" content="Mirror of Firasa: a heritage face reading after Fakhr al-Din al-Razi's Kitab al-Firasa. Runs in your browser.">
+<meta property="og:title" content="مرآة الفراسة · Mirror of Firasa">
+<meta property="og:description" content="قراءة تراثية للملامح على منهج فخر الدين الرازي في كتاب الفراسة. A heritage face reading after al-Razi.">
+<meta property="og:image" content="https://abualroob.github.io/Firasa/og.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=swap">
 <style>
@@ -175,7 +180,9 @@ footer{padding-block:36px 48px;color:var(--muted);font-size:13px;display:flex;fl
   <section class="result fade" id="result" aria-labelledby="rh">
     <div class="res-head">
       <div><span class="tag" id="rtag"></span><h2 id="rh" data-i="resH"></h2></div>
+      <button class="btn btn-gold" id="tryMine" hidden data-i="tryMine"></button>
     </div>
+    <p class="note" id="sharedNote" hidden data-i="sharedNote" style="margin:-12px 0 20px"></p>
     <div class="split">
       <div class="cardwrap">
         <img class="cardimg" id="cardimg" alt="">
@@ -348,7 +355,7 @@ const T = {
   privacy:"صورتك لا تغادر جهازك. التحليل يجري كاملًا داخل متصفحك، ولا نرفعها أو نحفظها في أي مكان.",
   manualH:"صِف ملامحك",manualP:"اختر أقرب وصف لكل عضو، ثم اعرض القراءة.",manualP2:"ملأنا ما قسناه من صورتك. أكمل ما لا تظهره الصورة (الحاجبان، موضع العين، العنق) ثم حدّث القراءة.",
   manualGo:"اعرض القراءة",refine:"أكمل الملامح وعدّل القراءة",
-  resH:"قراءة الملامح",tagEx:"قراءة مثال",tagPhoto:"قراءة صورتك",tagManual:"قراءة من وصفك",
+  resH:"قراءة الملامح",tagEx:"قراءة مثال",tagPhoto:"قراءة صورتك",tagManual:"قراءة من وصفك",tagShared:"قراءة مُشارَكة",tryMine:"اقرأ ملامحك أنت",sharedNote:"هذه قراءة شاركها معك صديق. الصورة لا تُشارَك أبدًا، ويظهر هنا وجه رمزي مكانها.",waLink:"شاهد قراءتي كاملة:",
   wa:"شارك عبر واتساب",pdf:"تنزيل PDF",png:"تنزيل الصورة",dlnote:"لمشاركة البطاقة نفسها في واتساب: نزّل الصورة ثم أرفقها في المحادثة.",
   keysH:"أبرز السمات",readH:"القراءة الكاملة",seenH:"ما قسناه في الصورة",rulesH:"من نص الرازي",
   disc:"الفراسة علم تراثي ظني، والرازي نفسه يقول إن الدليل الواحد لا يفيد إلا ظنًا ضعيفًا. ولا يثبت العلم الحديث أن ملامح الوجه تكشف الطباع. هذه القراءة للتسلية والتعرف على التراث، فلا تبنِ عليها حكمًا على نفسك أو على غيرك.",
@@ -375,7 +382,7 @@ const T = {
   privacy:"Your photo never leaves your device. The analysis runs entirely in your browser; nothing is uploaded or stored.",
   manualH:"Describe your features",manualP:"Pick the closest description for each feature, then show the reading.",manualP2:"We filled in what we measured from your photo. Complete what a photo can't show (eyebrows, eye setting, neck) and update the reading.",
   manualGo:"Show reading",refine:"Complete features and update the reading",
-  resH:"Your reading",tagEx:"Example reading",tagPhoto:"Reading of your photo",tagManual:"Reading from your description",
+  resH:"Your reading",tagEx:"Example reading",tagPhoto:"Reading of your photo",tagManual:"Reading from your description",tagShared:"Shared reading",tryMine:"Read your own face",sharedNote:"A friend shared this reading with you. Photos are never shared, so a drawn face stands in for theirs.",waLink:"See my full reading:",
   wa:"Share on WhatsApp",pdf:"Download PDF",png:"Download image",dlnote:"To share the card itself on WhatsApp, download the image and attach it in the chat.",
   keysH:"Key traits",readH:"Full reading",seenH:"What we measured",rulesH:"From al-Razi's text",
   disc:"Firasa (physiognomy) is a heritage art of conjecture; al-Razi himself says a single sign gives only weak probability. Modern science does not support reading character from facial features. This reading is for entertainment and cultural interest, not a judgment of you or anyone else.",
@@ -460,7 +467,8 @@ function buildForm(fill){
 
 function renderAll(){
   const list = match(S.feat), mk = markers(list), keys = keyTraits(list);
-  $("rtag").textContent = t(S.mode === "photo" ? "tagPhoto" : S.mode === "manual" ? "tagManual" : "tagEx");
+  $("rtag").textContent = t(S.mode === "photo" ? "tagPhoto" : S.mode === "manual" ? "tagManual" : S.mode === "shared" ? "tagShared" : "tagEx");
+  $("tryMine").hidden = $("sharedNote").hidden = S.mode !== "shared";
   const K = $("keys"); K.textContent = "";
   if (!keys.length){ const li = document.createElement("li"); li.textContent = t("balancedOnly"); K.append(li); }
   keys.forEach(k => { const li = document.createElement("li"); li.append(GROUPS[k.g][lang]); const s = document.createElement("span"); s.textContent = "× " + num(k.n); li.append(s); K.append(li); });
@@ -659,17 +667,25 @@ async function save(filename, blob, okMsg){
 }
 $("png").onclick = async () => { const b = await new Promise(r => S.cardCanvas.toBlob(r, "image/png")); save("firasa-card.png", b, t("savedPng")); };
 $("pdf").onclick = async () => { $("pdf").disabled = true; dlNote(t("making")); try{ await fontsReady(); const b = await buildPdf(); await save("firasa-reading.pdf", b, t("savedPdf")); } finally { $("pdf").disabled = false; } };
+// Share code: one base-36 digit per feature (index of its value), plus the language. No photo, no measurements.
+function encodeFeat(feat){
+  return FEATURES.map(F => { const i = Object.keys(F.o).indexOf(String(feat[F.k])); return (i < 0 ? 0 : i).toString(36); }).join("");
+}
+function decodeFeat(code){
+  if (!/^[0-9a-z]+$/.test(code || "") || code.length !== FEATURES.length) return null;
+  const feat = {};
+  FEATURES.forEach((F, i) => { const keys = Object.keys(F.o), j = parseInt(code[i], 36); if (j < keys.length) feat[F.k] = norm(keys[j]); });
+  return feat;
+}
+function shareUrl(){
+  return location.origin + location.pathname + "?r=" + encodeFeat(S.feat) + "&l=" + lang;
+}
 function updateWa(){
   const list = match(S.feat), keys = keyTraits(list).map(k => GROUPS[k.g][lang]).join(lang === "ar" ? "، " : ", ") || t("balancedOnly");
-  const first = list.length ? composeReading(list, lang).split(/\n+/)[0] : "";
-  const r0 = list[0];
-  const parts = [t("waIntro"), "", t("waKeys") + ": " + keys];
-  if (first) parts.push("", first.length > 420 ? first.slice(0, 417) + "…" : first);
-  else if (r0) parts.push("", "«" + r0[lang].quote + "»");
-  parts.push("", t("waNote"));
+  const parts = [t("waIntro"), "", t("waKeys") + ": " + keys, "", t("waLink"), shareUrl(), "", t("waNote")];
   $("wa").href = "https://wa.me/?text=" + encodeURIComponent(parts.join("\n"));
 }
-
+$("tryMine").onclick = () => { history.replaceState(null, "", location.pathname); Object.assign(S, {feat:EXAMPLE, mode:"example"}); renderAll(); window.scrollTo({top:0, behavior:"smooth"}); };
 /* ================= Photo flow: on-device face landmarks (MediaPipe) ================= */
 let landmarker = null, loadingLm = null, pending = null;
 // The model ships as models/face_landmarker.task; hosts that refuse that extension get the same bytes as .bin.wasm.
@@ -790,6 +806,11 @@ function fontsReady(){
   if (!document.fonts) return Promise.resolve();
   return Promise.all(['700 40px "Amiri"','400 30px "Amiri"','500 24px "IBM Plex Sans Arabic"','700 40px "Cormorant Garamond"','italic 500 28px "Cormorant Garamond"','500 24px "Inter"'].map(f => document.fonts.load(f).catch(()=>{}))).then(()=>{});
 }
+(function readShared(){
+  const q = new URLSearchParams(location.search), feat = decodeFeat(q.get("r"));
+  if (q.get("l") === "en" || q.get("l") === "ar") lang = q.get("l");
+  if (feat){ Object.assign(S, { feat, mode:"shared" }); requestAnimationFrame(() => $("result").scrollIntoView({block:"start"})); }
+})();
 applyLang();
 fontsReady().then(() => drawCard());
 (async () => {
