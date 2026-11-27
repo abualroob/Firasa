@@ -42,10 +42,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .hero{background:radial-gradient(120% 90% at 85% 0%,var(--hero-2),var(--hero) 60%);color:var(--on-hero);position:relative;overflow:hidden;
   margin-top:calc(-1 * env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px)}
 .hero h1,.hero .sub,.hero .kicker{text-shadow:0 2px 18px rgba(5,14,17,.85)}
-.hero-art{display:block;width:100%;height:340px;object-fit:cover;object-position:60% 35%;margin:-12px 0 6px;
+.hero-art{display:block;width:100%;height:340px;object-fit:cover;object-position:50% 40%;margin:-12px 0 6px;
   -webkit-mask-image:linear-gradient(180deg,#000 60%,transparent),linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);-webkit-mask-composite:source-in;
   mask-image:linear-gradient(180deg,#000 60%,transparent),linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-composite:intersect}
-@media (max-width:860px){.hero-art{width:calc(100% + 40px);max-width:none;margin:-8px -20px 8px;height:300px;object-position:62% 30%;
+@media (max-width:860px){.hero-art{width:calc(100% + 40px);max-width:none;margin:-8px -20px 8px;height:auto;aspect-ratio:8/5;object-fit:contain;
     -webkit-mask-image:linear-gradient(180deg,#000 55%,transparent);mask-image:linear-gradient(180deg,#000 55%,transparent)}}
 .artcap{position:absolute;bottom:10px;inset-inline-end:max(20px,env(safe-area-inset-right,0px));font-size:11px;color:var(--on-hero-muted);opacity:.75;margin:0}
 .hero::before{content:"";position:absolute;inset:0;opacity:.04;pointer-events:none;
@@ -164,7 +164,7 @@ footer{padding-block:36px 48px;color:var(--muted);font-size:13px;display:flex;fl
     </div>
     <div class="hero-grid">
       <div>
-        <img class="hero-art" src="razi-art.svg?v=4" alt="" aria-hidden="true">
+        <img class="hero-art" src="face-art.svg?v=1" alt="" aria-hidden="true">
         <div class="kicker" data-i="kicker"></div>
         <h1 data-i="h1"></h1>
         <p class="sub" data-i="sub"></p>
@@ -185,7 +185,6 @@ footer{padding-block:36px 48px;color:var(--muted);font-size:13px;display:flex;fl
       </div>
     </div>
   </div></div>
-  <p class="artcap" data-i="artCap"></p>
 </div>
 
 <div class="gut"><div class="in">
