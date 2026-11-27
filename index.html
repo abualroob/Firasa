@@ -131,6 +131,16 @@ h2{font-family:var(--f-display);font-size:clamp(30px,4vw,42px);margin:6px 0 0;li
 .rule blockquote.en{font-family:var(--f-display-en);font-size:19px;line-height:1.5;font-style:italic}
 .rule .tr{color:var(--ok);font-size:14px;font-weight:500}
 .disclaimer{background:var(--gold-soft);border-radius:14px;padding:14px 18px;font-size:14px;margin:0}
+.about{display:grid;grid-template-columns:220px minmax(0,1fr);gap:36px;align-items:center;padding-block:40px;border-top:1px solid var(--line);margin-top:24px}
+@media (max-width:700px){.about{grid-template-columns:1fr;gap:18px;justify-items:center;text-align:center}}
+.medal{width:220px;max-width:100%;aspect-ratio:1;display:block}
+.medal .ring{fill:none;stroke:var(--gold);stroke-width:1.5}
+.medal .ink{fill:var(--hero)}
+.medal .nm{fill:var(--gold-strong);font-family:"Amiri",serif;font-weight:700;text-anchor:middle}
+.medal .dt{fill:var(--on-hero-muted);font-family:"IBM Plex Sans Arabic",sans-serif;text-anchor:middle}
+.about h2{font-size:clamp(28px,3.4vw,36px);margin:4px 0 10px}
+.about p{margin:0 0 10px;max-width:62ch}
+.about .cap{font-size:13px;color:var(--muted)}
 footer{padding-block:36px 48px;color:var(--muted);font-size:13px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);margin-top:32px}
 @media (prefers-reduced-motion:no-preference){.fade{animation:fd .5s ease-out}@keyframes fd{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}}
 .adult{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--on-hero-muted);cursor:pointer}
@@ -200,6 +210,29 @@ footer{padding-block:36px 48px;color:var(--muted);font-size:13px;display:flex;fl
         <div class="sect"><h3 data-i="rulesH"></h3><div class="rules" id="rules"></div></div>
         <div class="sect"><p class="disclaimer" data-i="disc"></p></div>
       </div>
+    </div>
+  </section>
+
+  <section class="about" aria-labelledby="ah">
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:8px">
+      <svg class="medal" viewBox="0 0 220 220" role="img" aria-labelledby="medalT">
+        <title id="medalT">فخر الدين الرازي · Fakhr al-Din al-Razi</title>
+        <circle class="ink" cx="110" cy="110" r="106"/>
+        <circle class="ring" cx="110" cy="110" r="100"/>
+        <g class="ring" transform="translate(110 110)"><rect x="-76" y="-76" width="152" height="152"/><rect x="-76" y="-76" width="152" height="152" transform="rotate(45)"/></g>
+        <circle class="ring" cx="110" cy="110" r="70" stroke-dasharray="2 5"/>
+        <text class="nm" x="110" y="104" font-size="34">فخر الدين</text>
+        <text class="nm" x="110" y="142" font-size="38">الرازي</text>
+        <text class="dt" x="110" y="168" font-size="12">٥٤٤ – ٦٠٦ هـ</text>
+      </svg>
+      <figcaption class="cap" data-i="medalCap"></figcaption>
+    </figure>
+    <div>
+      <div class="kicker" style="color:var(--gold)" data-i="aboutK"></div>
+      <h2 id="ah" data-i="aboutH"></h2>
+      <p data-i="aboutP1"></p>
+      <p data-i="aboutP2"></p>
+      <p class="cap" data-i="aboutNote"></p>
     </div>
   </section>
 
@@ -355,7 +388,11 @@ const T = {
   privacy:"صورتك لا تغادر جهازك. التحليل يجري كاملًا داخل متصفحك، ولا نرفعها أو نحفظها في أي مكان.",
   manualH:"صِف ملامحك",manualP:"اختر أقرب وصف لكل عضو، ثم اعرض القراءة.",manualP2:"ملأنا ما قسناه من صورتك. أكمل ما لا تظهره الصورة (الحاجبان، موضع العين، العنق) ثم حدّث القراءة.",
   manualGo:"اعرض القراءة",refine:"أكمل الملامح وعدّل القراءة",
-  resH:"قراءة الملامح",tagEx:"قراءة مثال",tagPhoto:"قراءة صورتك",tagManual:"قراءة من وصفك",tagShared:"قراءة مُشارَكة",tryMine:"اقرأ ملامحك أنت",sharedNote:"هذه قراءة شاركها معك صديق. الصورة لا تُشارَك أبدًا، ويظهر هنا وجه رمزي مكانها.",waLink:"شاهد قراءتي كاملة:",
+  resH:"قراءة الملامح",tagEx:"قراءة مثال",tagPhoto:"قراءة صورتك",tagManual:"قراءة من وصفك",tagShared:"قراءة مُشارَكة",aboutK:"صاحب الكتاب",aboutH:"فخر الدين الرازي",
+  aboutP1:"أبو عبد الله محمد بن عمر الرازي، المعروف بفخر الدين وبابن خطيب الرّي (٥٤٤–٦٠٦ هـ / ١١٥٠–١٢١٠ م). وُلد في الرّي قرب طهران اليوم، وتوفي في هراة. من كبار علماء الكلام والتفسير والفلسفة في عصره، وصاحب التفسير الكبير «مفاتيح الغيب».",
+  aboutP2:"جمع في «كتاب الفراسة» ما بلغه من علم الفراسة عند اليونان والعرب، ورتّبه على طريقة المتكلمين في الاستدلال: لا يحكم بدليل واحد، ويوازن بين الدلائل إذا تعارضت.",
+  aboutNote:"ولا يُخلط بينه وبين أبي بكر محمد بن زكريا الرازي الطبيب (ت ٣١٣ هـ).",
+  medalCap:"لا تُعرف للرازي صورة حقيقية، وهذا شعار فني باسمه.",tryMine:"اقرأ ملامحك أنت",sharedNote:"هذه قراءة شاركها معك صديق. الصورة لا تُشارَك أبدًا، ويظهر هنا وجه رمزي مكانها.",waLink:"شاهد قراءتي كاملة:",
   wa:"شارك عبر واتساب",pdf:"تنزيل PDF",png:"تنزيل الصورة",dlnote:"لمشاركة البطاقة نفسها في واتساب: نزّل الصورة ثم أرفقها في المحادثة.",
   keysH:"أبرز السمات",readH:"القراءة الكاملة",seenH:"ما قسناه في الصورة",rulesH:"من نص الرازي",
   disc:"الفراسة علم تراثي ظني، والرازي نفسه يقول إن الدليل الواحد لا يفيد إلا ظنًا ضعيفًا. ولا يثبت العلم الحديث أن ملامح الوجه تكشف الطباع. هذه القراءة للتسلية والتعرف على التراث، فلا تبنِ عليها حكمًا على نفسك أو على غيرك.",
@@ -382,7 +419,11 @@ const T = {
   privacy:"Your photo never leaves your device. The analysis runs entirely in your browser; nothing is uploaded or stored.",
   manualH:"Describe your features",manualP:"Pick the closest description for each feature, then show the reading.",manualP2:"We filled in what we measured from your photo. Complete what a photo can't show (eyebrows, eye setting, neck) and update the reading.",
   manualGo:"Show reading",refine:"Complete features and update the reading",
-  resH:"Your reading",tagEx:"Example reading",tagPhoto:"Reading of your photo",tagManual:"Reading from your description",tagShared:"Shared reading",tryMine:"Read your own face",sharedNote:"A friend shared this reading with you. Photos are never shared, so a drawn face stands in for theirs.",waLink:"See my full reading:",
+  resH:"Your reading",tagEx:"Example reading",tagPhoto:"Reading of your photo",tagManual:"Reading from your description",tagShared:"Shared reading",aboutK:"The author",aboutH:"Fakhr al-Din al-Razi",
+  aboutP1:"Abu Abdallah Muhammad ibn Umar al-Razi, known as Fakhr al-Din (1150–1210 CE, 544–606 AH), was born in Rayy, near today's Tehran, and died in Herat. He was one of the leading theologians, Qur'an commentators and philosophers of his age, and wrote the great commentary Mafatih al-Ghayb.",
+  aboutP2:"In Kitab al-Firasa he gathered the Greek and Arab learning on physiognomy and set it out with a theologian's method: never judge by one sign alone, and weigh the signs against each other when they conflict.",
+  aboutNote:"Not to be confused with Abu Bakr Muhammad ibn Zakariya al-Razi, the physician (d. 925 CE).",
+  medalCap:"No authentic portrait of al-Razi is known; this is an artistic emblem of his name.",tryMine:"Read your own face",sharedNote:"A friend shared this reading with you. Photos are never shared, so a drawn face stands in for theirs.",waLink:"See my full reading:",
   wa:"Share on WhatsApp",pdf:"Download PDF",png:"Download image",dlnote:"To share the card itself on WhatsApp, download the image and attach it in the chat.",
   keysH:"Key traits",readH:"Full reading",seenH:"What we measured",rulesH:"From al-Razi's text",
   disc:"Firasa (physiognomy) is a heritage art of conjecture; al-Razi himself says a single sign gives only weak probability. Modern science does not support reading character from facial features. This reading is for entertainment and cultural interest, not a judgment of you or anyone else.",
